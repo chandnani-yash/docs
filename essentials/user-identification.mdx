@@ -1,0 +1,159 @@
+---
+title: "User Identification"
+description: "Identify users and associate them with groups"
+---
+
+# User Identification
+
+Identify users and associate them with groups for better analytics and session tracking.
+
+## Identify Users
+
+### Basic Identification
+
+```typescript
+// Identify with ID and properties
+signal.identify('user-123', {
+  email: 'user@example.com',
+  name: 'John Doe',
+  plan: 'premium',
+  createdAt: '2024-01-01',
+});
+```
+
+### Set Additional Properties
+
+```typescript
+// Set additional properties later
+signal.setPersonProperties({
+  lastLogin: new Date().toISOString(),
+  loginCount: 5,
+});
+```
+
+### Set Properties Once
+
+```typescript
+// Set properties only if not already set
+signal.setPersonPropertiesOnce({
+  firstSeen: new Date().toISOString(),
+});
+```
+
+### Get Current User ID
+
+```typescript
+const userId = signal.getDistinctId();
+```
+
+### Reset Identity
+
+```typescript
+// Reset identity (on logout)
+signal.reset();
+```
+
+## Group Analytics
+
+Associate users with companies, teams, or other groups:
+
+### Associate with a Company
+
+```typescript
+signal.group('company', 'acme-corp', {
+  name: 'Acme Corporation',
+  plan: 'enterprise',
+  employeeCount: 500,
+  industry: 'Technology',
+});
+```
+
+### Multiple Group Types
+
+```typescript
+// Associate with multiple group types
+signal.group('team', 'engineering');
+signal.group('project', 'signal-sdk');
+```
+
+### Get All Groups
+
+```typescript
+const groups = signal.getGroups();
+// { company: 'acme-corp', team: 'engineering', project: 'signal-sdk' }
+```
+
+## Bootstrap with Initial Data
+
+Set initial user data when initializing the SDK:
+
+```typescript
+const signal = createSignal({
+  endpoint: 'https://your-api.com/api/signal/v1',
+  apiKey: 'your-api-key',
+  projectId: 'your-project-id',
+  
+  bootstrap: {
+    distinctId: 'user-123',
+    superProperties: { plan: 'enterprise' },
+  },
+});
+```
+
+## Example: Complete User Flow
+
+```typescript
+import { createSignal } from 'signal-js';
+
+const signal = createSignal({
+  endpoint: 'https://your-api.com/api/signal/v1',
+  apiKey: 'your-api-key',
+  projectId: 'your-project-id',
+});
+
+await signal.start();
+
+// On user login
+async function handleLogin(user) {
+  // Identify the user
+  signal.identify(user.id, {
+    email: user.email,
+    name: user.name,
+    plan: user.plan,
+  });
+  
+  // Associate with company
+  if (user.company) {
+    signal.group('company', user.company.id, {
+      name: user.company.name,
+      plan: user.company.plan,
+    });
+  }
+  
+  // Set additional properties
+  signal.setPersonProperties({
+    lastLogin: new Date().toISOString(),
+  });
+}
+
+// On user logout
+function handleLogout() {
+  signal.reset();
+}
+```
+
+## Use Cases
+
+- **Track user behavior** across sessions by identifying users
+- **Group analytics** by associating users with companies or teams
+- **Personalize experiences** by storing user properties
+- **Segment users** based on properties like plan, industry, etc.
+- **Track user journeys** from anonymous to identified
+
+## Best Practices
+
+1. **Identify users early** - Call `identify()` as soon as you know who the user is
+2. **Use consistent IDs** - Use the same ID format across your application
+3. **Store useful properties** - Include properties that help with analytics and segmentation
+4. **Reset on logout** - Call `reset()` when users log out to start fresh
+5. **Use groups** - Associate users with companies/teams for better analytics

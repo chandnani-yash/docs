@@ -1,14 +1,39 @@
 ---
-title: "Signal React Native"
-description: "Use Signal with React Native across Android, iOS, and Web"
+title: "Signal JS"
+description: "A modern SDK for session replay, network monitoring, and analytics"
 ---
 
-This module wraps:
-- Android: `signal-android` SDK
-- iOS: `SignalSDK` (Swift)
-- Web: a JavaScript session module used when bundling for RN Web
+Signal JS is a comprehensive SDK for session replay, network monitoring, and analytics - inspired by PostHog-JS. Record user sessions, capture network requests, monitor console logs, and track user behavior with built-in privacy protection.
 
-Not supported in Expo Go. Use a custom dev client or bare React Native.
+## Features
+
+- **Session Replay** - Record and replay user sessions using rrweb
+- **Network Capture** - Intercept fetch/XHR with headers and body recording
+- **Console Capture** - Capture console logs and JavaScript errors
+- **Privacy & Masking** - Automatic masking of sensitive data (PII, credit cards, passwords)
+- **User Identification** - Identify users with distinct IDs and traits
+- **Group Analytics** - Associate users with companies/organizations
+- **Super Properties** - Properties included with every event
+- **Session Management** - UUIDv7, configurable timeouts, activity tracking
+- **Storage Layer** - Cookie, localStorage, sessionStorage with fallback chain
+- **Compression** - Gzip compression for optimized payload sizes
+- **TypeScript** - Full type definitions included
+
+## Installation
+
+Choose the package that matches your framework:
+
+| Framework | Package | Installation |
+|-----------|---------|-------------|
+| **Vanilla JS / HTML** | `signal-js` | `npm install signal-js` |
+| **Vue.js** | `signal-js` | `npm install signal-js` |
+| **React** | `@signal-js/react` | `npm install @signal-js/react` |
+| **Next.js** | `@signal-js/nextjs` | `npm install @signal-js/nextjs` |
+| **Node.js Server** | `@signal-js/node` | `npm install @signal-js/node` |
+
+> **Note:** 
+> - Framework packages (`@signal-js/react`, `@signal-js/nextjs`) automatically include the browser SDK (`signal-js`). You only need to install one package.
+> - For server-side tracking with Next.js, `@signal-js/nextjs` includes both client and server SDKs.
 
 ## Get Started
 
@@ -18,7 +43,32 @@ Not supported in Expo Go. Use a custom dev client or bare React Native.
   href="/quickstart"
   horizontal
 >
-  Install and configure the SDK for Android, iOS, and Web.
-  Learn how to start, continue, and end sessions.
+  Get up and running with Signal JS in minutes. Install the SDK and start recording sessions.
 </Card>
 
+<Card
+  title="Configuration"
+  icon="settings"
+  href="/essentials/configuration"
+  horizontal
+>
+  Learn about all available configuration options for session recording, privacy masking, and more.
+</Card>
+
+<Card
+  title="Privacy & Masking"
+  icon="lock"
+  href="/essentials/privacy-masking"
+  horizontal
+>
+  Protect sensitive data with automatic masking and privacy controls.
+</Card>
+
+<Card
+  title="Signal App Overview"
+  icon="app-window"
+  href="/getting-started/signal-app"
+  horizontal
+>
+  Learn the basics of using the Signal app to analyze sessions and get insights.
+</Card>

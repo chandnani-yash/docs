@@ -1,0 +1,194 @@
+---
+title: "Console Capture"
+description: "Capture console logs and JavaScript errors automatically"
+---
+
+# Console Capture
+
+Signal JS automatically captures console logs, JavaScript errors, and unhandled promise rejections.
+
+## Configuration
+
+```typescript
+consoleCaptureOptions: {
+  /** Console levels to capture */
+  levels: ['log', 'info', 'warn', 'error', 'debug'],
+  
+  /** Capture uncaught JavaScript errors (default: true) */
+  captureErrors: true,
+  
+  /** Capture unhandled promise rejections (default: true) */
+  captureUnhandledRejections: true,
+  
+  /** Maximum message length (default: 10000) */
+  maxMessageLength: 10000,
+  
+  /** Maximum number of arguments per log (default: 10) */
+  maxArgs: 10,
+  
+  /** Mask sensitive data in console logs (default: true) */
+  maskSensitiveData: true,
+}
+```
+
+## Captured Events
+
+### Console Log Events
+
+```typescript
+{
+  type: 'console',
+  level: 'error',
+  message: 'Failed to load user',
+  args: ['Failed to load user', '{"userId": 123}'],
+  timestamp: '2024-01-15T10:30:00.000Z',
+  stack: '...',  // For errors
+}
+```
+
+### JavaScript Error Events
+
+```typescript
+{
+  type: 'error',
+  message: 'Uncaught TypeError: Cannot read property...',
+  source: 'https://example.com/app.js',
+  lineno: 42,
+  colno: 15,
+  stack: '...',
+  timestamp: '2024-01-15T10:30:00.000Z',
+}
+```
+
+### Unhandled Rejection Events
+
+```typescript
+{
+  type: 'unhandled-rejection',
+  message: 'Promise rejected',
+  reason: 'Network error',
+  timestamp: '2024-01-15T10:30:00.000Z',
+}
+```
+
+## Console Levels
+
+Control which console levels are captured:
+
+```typescript
+levels: ['log', 'info', 'warn', 'error', 'debug']
+```
+
+Only logs matching these levels will be captured. For example, to capture only errors and warnings:
+
+```typescript
+levels: ['warn', 'error']
+```
+
+## Error Capture
+
+### Uncaught Errors
+
+Automatically capture uncaught JavaScript errors:
+
+```typescript
+captureErrors: true
+```
+
+These are captured with full stack traces, file names, line numbers, and column numbers.
+
+### Unhandled Promise Rejections
+
+Capture promises that are rejected without a `.catch()` handler:
+
+```typescript
+captureUnhandledRejections: true
+```
+
+## Message Limits
+
+### Maximum Message Length
+
+Limit the length of captured messages to prevent excessive data:
+
+```typescript
+maxMessageLength: 10000  // Default: 10000 characters
+```
+
+Messages exceeding this limit will be truncated.
+
+### Maximum Arguments
+
+Limit the number of arguments captured per log call:
+
+```typescript
+maxArgs: 10  // Default: 10 arguments
+```
+
+Only the first N arguments will be captured.
+
+## Sensitive Data Masking
+
+Automatically mask sensitive data in console logs:
+
+```typescript
+maskSensitiveData: true
+```
+
+Example:
+
+```javascript
+// Original log:
+console.log('User credentials:', { password: 'secret123', ssn: '123-45-6789' });
+
+// Captured as:
+// "User credentials: { password: '***MASKED***', ssn: '***-**-****' }"
+```
+
+The SDK automatically detects and masks:
+- Passwords
+- Credit card numbers
+- Social Security Numbers
+- API keys
+- JWT tokens
+- Email addresses (partially)
+
+## Example: Complete Configuration
+
+```typescript
+import { createSignal } from 'signal-js';
+
+const signal = createSignal({
+  endpoint: 'https://your-api.com/api/signal/v1',
+  apiKey: 'your-api-key',
+  projectId: 'your-project-id',
+  
+  captureConsole: true,
+  consoleCaptureOptions: {
+    levels: ['log', 'info', 'warn', 'error', 'debug'],
+    captureErrors: true,
+    captureUnhandledRejections: true,
+    maxMessageLength: 10000,
+    maxArgs: 10,
+    maskSensitiveData: true,
+  },
+});
+
+await signal.start();
+```
+
+## Use Cases
+
+- **Debug production issues** by seeing console logs from user sessions
+- **Track JavaScript errors** with full stack traces
+- **Monitor unhandled rejections** to catch async errors
+- **Correlate errors** with user actions in session replay
+- **Debug API issues** by seeing console logs alongside network requests
+
+## Best Practices
+
+1. **Enable error capture** in production to catch unexpected errors
+2. **Use appropriate log levels** (`error`, `warn`) for important messages
+3. **Avoid logging sensitive data** - rely on automatic masking as a safety net
+4. **Set reasonable limits** on message length and arguments to prevent excessive data
+5. **Review captured logs** regularly to identify common issues

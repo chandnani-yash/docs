@@ -1,0 +1,51 @@
+---
+title: "Configuration"
+description: "Required configuration options for Signal JS"
+---
+
+# Configuration
+
+Signal JS requires three configuration options to get started. All other options have sensible defaults.
+
+## Required Options
+
+```typescript
+import { createSignal } from 'signal-js';
+
+const signal = createSignal({
+  /** API endpoint for sending events */
+  endpoint: 'https://your-api.com/api/signal/v1',
+  
+  /** API key for authentication */
+  apiKey: 'your-api-key',
+  
+  /** Project identifier */
+  projectId: 'your-project-id',
+});
+
+await signal.start();
+```
+
+## Optional: Server-Side Correlation
+
+If you're tracking events on the server, enable tracing headers to link client and server events:
+
+```typescript
+const signal = createSignal({
+  endpoint: 'https://your-api.com/api/signal/v1',
+  apiKey: 'your-api-key',
+  projectId: 'your-project-id',
+  
+  // Enable tracing headers for server correlation
+  addTracingHeaders: true, // or ['api.example.com'] for specific hostnames
+});
+```
+
+## Learn More
+
+For advanced configuration options, see:
+
+- [Privacy & Masking](/essentials/privacy-masking) - Configure data masking and privacy controls
+- [Network Capture](/essentials/network-capture) - Configure network request capture
+- [Console Capture](/essentials/console-capture) - Configure console log capture
+- [Event Tracking](/essentials/event-tracking) - Configure event and page tracking

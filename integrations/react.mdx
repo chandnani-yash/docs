@@ -1,0 +1,221 @@
+---
+title: "React Integration"
+description: "Use Signal JS with React using hooks and components"
+---
+
+# React Integration
+
+Use Signal JS with React using the `@signal-js/react` package, which provides hooks and components for easy integration.
+
+## Installation
+
+```bash
+npm install @signal-js/react
+```
+
+> **Note:** `@signal-js/react` includes the browser SDK (`signal-js`) automatically. You don't need to install `signal-js` separately.
+
+## Provider Setup
+
+Wrap your app with the `SignalProvider`:
+
+```tsx
+import { SignalProvider } from '@signal-js/react';
+
+function App() {
+  return (
+    <SignalProvider
+      options={{
+        endpoint: 'https://your-api.com/api/signal/v1',
+        apiKey: 'your-api-key',
+        projectId: 'your-project-id',
+        // Enable tracing headers for server correlation
+        addTracingHeaders: true, // or ['api.example.com'] for specific hostnames
+      }}
+      onLoaded={(signal) => console.log('Signal loaded')}
+    >
+      <YourApp />
+    </SignalProvider>
+  );
+}
+```
+
+## Using Hooks
+
+### useSignal
+
+Get full SDK access:
+
+```tsx
+import { useSignal } from '@signal-js/react';
+
+function MyComponent() {
+  const signal = useSignal();
+  
+  const handleClick = () => {
+    signal.capture('button_clicked', { buttonId: 'cta' });
+  };
+  
+  return <button onClick={handleClick}>Click Me</button>;
+}
+```
+
+### useSignalCapture
+
+Get a capture function:
+
+```tsx
+import { useSignalCapture } from '@signal-js/react';
+
+function MyComponent() {
+  const capture = useSignalCapture();
+  
+  const handleClick = () => {
+    capture('button_clicked', { buttonId: 'cta' });
+  };
+  
+  return <button onClick={handleClick}>Click Me</button>;
+}
+```
+
+### useSignalIdentify
+
+Get an identify function:
+
+```tsx
+import { useSignalIdentify } from '@signal-js/react';
+
+function LoginForm() {
+  const identify = useSignalIdentify();
+  
+  const handleLogin = (user) => {
+    identify(user.id, { email: user.email });
+  };
+  
+  return <form onSubmit={handleLogin}>...</form>;
+}
+```
+
+## Track Component Events
+
+Automatically track events when components mount:
+
+```tsx
+import { useSignalTrack } from '@signal-js/react';
+
+function ProductCard({ product }) {
+  // Automatically tracks 'product_viewed' on mount
+  useSignalTrack('product_viewed', {
+    productId: product.id,
+    productName: product.name,
+  });
+  
+  return <div>{product.name}</div>;
+}
+```
+
+## React with Server-Side Tracking
+
+Enable tracing headers to correlate client and server events:
+
+```tsx
+// Client-side: Enable tracing headers
+<SignalProvider
+  options={{
+    endpoint: 'https://your-api.com/api/signal/v1',
+    apiKey: 'your-api-key',
+    projectId: 'your-project-id',
+    addTracingHeaders: true, // Automatically adds session headers to API calls
+  }}
+>
+  <App />
+</SignalProvider>
+```
+
+Server-side example (Express):
+
+```typescript
+// Server-side: Extract headers and use them
+app.post('/api/orders', async (req, res) => {
+  const sessionId = req.headers['x-signal-session-id'];
+  const windowId = req.headers['x-signal-window-id'];
+  const distinctId = req.headers['x-signal-distinct-id'];
+  
+  // Process order...
+  const orderId = await processOrder(req.body);
+  
+  // Track with same session identifiers
+  await signal.capture({
+    distinctId: distinctId || req.body.userId,
+    event: 'order_created',
+    properties: { orderId },
+    sessionId,
+    windowId,
+  });
+  
+  res.json({ success: true, orderId });
+});
+```
+
+## Complete Example
+
+```tsx
+import { SignalProvider, useSignal, useSignalCapture, useSignalIdentify } from '@signal-js/react';
+
+function ProductPage({ product }) {
+  const signal = useSignal();
+  const capture = useSignalCapture();
+  const identify = useSignalIdentify();
+  
+  // Track page view
+  useSignalTrack('product_viewed', {
+    productId: product.id,
+  });
+  
+  const handleAddToCart = () => {
+    capture('add_to_cart', {
+      productId: product.id,
+      price: product.price,
+    });
+  };
+  
+  return (
+    <div>
+      <h1>{product.name}</h1>
+      <button onClick={handleAddToCart}>Add to Cart</button>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <SignalProvider
+      options={{
+        endpoint: 'https://your-api.com/api/signal/v1',
+        apiKey: 'your-api-key',
+        projectId: 'your-project-id',
+        addTracingHeaders: true,
+      }}
+    >
+      <ProductPage product={product} />
+    </SignalProvider>
+  );
+}
+```
+
+## Available Hooks
+
+| Hook | Description |
+|------|-------------|
+| `useSignal()` | Get the full Signal SDK instance |
+| `useSignalCapture()` | Get a function to capture events |
+| `useSignalIdentify()` | Get a function to identify users |
+| `useSignalTrack(event, properties)` | Automatically track an event on component mount |
+
+## Best Practices
+
+1. **Wrap your app** with `SignalProvider` at the root level
+2. **Use hooks** instead of importing the SDK directly in components
+3. **Enable tracing headers** if you have server-side tracking
+4. **Track component views** with `useSignalTrack` for automatic tracking
+5. **Identify users** when they log in using `useSignalIdentify`

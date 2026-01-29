@@ -1,68 +1,104 @@
 ---
 title: "Quickstart"
-description: "Install and use Signal Session Replay for React Native across Android, iOS, and Web"
+description: "Get started with Signal JS in minutes"
 ---
 
 # Quickstart
 
-Install and configure Signal Session Replay for React Native across Android, iOS and Web.
+Get up and running with Signal JS in minutes. This guide covers installation and basic usage.
 
-## Install
+## Installation
 
-```bash
-npm install signal-react-native-session-replay
-```
+Choose the package for your framework:
 
-## Android
-
-Ensure Maven Central is available. No extra Gradle dependency is required — installing `signal-react-native-session-replay` via npm will autolink and the module already depends on the underlying `com.signal:signal-android` SDK transitively.
-
-Minimum SDK for screenshots is API 26 (Android 8.0).
-
-## iOS
-
-In your iOS `Podfile`, add:
-
-```
-pod 'SignalSDK'
-pod 'signal-react-native-session-replay', :path => '../node_modules/signal-react-native-session-replay'
-```
-
-Then:
+### Vanilla JS / HTML / Vue.js
 
 ```bash
-cd ios && pod install
+npm install signal-js
+# or
+pnpm add signal-js
+# or
+yarn add signal-js
 ```
 
-Requires iOS 13+.
+### React
 
-## Web (React Native Web)
-
-This package ships a web entry that uses the Signal JS SDK directly when bundling for web. 
-
-No additional Metro/Webpack aliasing is needed.
-
-## Usage
-
-Call `start` on app start (the SDK generates the session id internally), then control the session lifecycle:
-
-```ts
-import SignalReplay from 'signal-react-native-session-replay';
-
-await SignalReplay.start(
-  {
-    apiKey: '<apiKey>',
-    projectId: '<projectId>',
-  } // other options use defaults
-);
-
-const active = await SignalReplay.isEnabled();
-await SignalReplay.startSession();     // new session with a new id
-await SignalReplay.continueSession();  // resume current session
-await SignalReplay.endSession();       // stop current session
+```bash
+npm install @signal-js/react
 ```
-## Troubleshooting
 
-- Android: API 26+ required for PixelCopy; rebuild after installation.
-- iOS: `pod install`; clean build if needed.
-- Web: ensure alias to the JS session helper resolves correctly.
+### Next.js
+
+```bash
+npm install @signal-js/nextjs
+```
+
+### Node.js Server
+
+```bash
+npm install @signal-js/node
+```
+
+> **Note:** Framework packages (`@signal-js/react`, `@signal-js/nextjs`) automatically include the browser SDK (`signal-js`). You only need to install one package.
+
+### CDN
+
+```html
+<!-- Full bundle with rrweb (recommended) -->
+<script src="https://unpkg.com/signal-js/dist/signal-full.global.js"></script>
+```
+
+## Basic Usage
+
+### Browser (NPM)
+
+```typescript
+import { createSignal } from 'signal-js';
+
+const signal = createSignal({
+  endpoint: 'https://your-api.com/api/signal/v1',
+  apiKey: 'your-api-key',
+  projectId: 'your-project-id',
+});
+
+// Start recording
+await signal.start();
+
+// Identify a user
+signal.identify('user-123', { 
+  email: 'user@example.com', 
+  name: 'John Doe' 
+});
+
+// Capture custom events
+signal.capture('button_clicked', { buttonId: 'submit' });
+```
+
+### Browser (CDN)
+
+```html
+<script src="https://unpkg.com/signal-js/dist/signal-full.global.js"></script>
+<script>
+  const signal = SignalSDK.createSignal({
+    endpoint: 'https://your-api.com/api/signal/v1',
+    apiKey: 'your-api-key',
+    projectId: 'your-project-id',
+  });
+  
+  // Start recording
+  await signal.start();
+  
+  // Identify a user
+  signal.identify('user-123', { email: 'user@example.com', name: 'John Doe' });
+  
+  // Capture custom events
+  signal.capture('button_clicked', { buttonId: 'submit' });
+</script>
+```
+
+## Next Steps
+
+- Learn about [Configuration](/essentials/configuration) options
+- Set up [Privacy & Masking](/essentials/privacy-masking) for sensitive data
+- Integrate with [React](/integrations/react) or [Next.js](/integrations/nextjs)
+- Explore [Network Capture](/essentials/network-capture) and [Console Capture](/essentials/console-capture)

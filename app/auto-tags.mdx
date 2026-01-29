@@ -1,0 +1,211 @@
+---
+title: "Auto Tags"
+description: "Create and manage auto tags to automatically categorize sessions"
+---
+
+# Auto Tags
+
+Auto tags automatically analyze and categorize your sessions using AI, helping you quickly identify important patterns and issues.
+
+## What are Auto Tags?
+
+Auto tags are AI-powered labels that are automatically applied to sessions based on their content. They help you:
+
+- **Identify patterns** - Find sessions with similar characteristics
+- **Track issues** - Automatically detect bugs, errors, and user frustrations
+- **Segment users** - Categorize sessions by behavior or outcomes
+- **Filter sessions** - Quickly find sessions matching specific criteria
+
+## Creating Auto Tags
+
+### Step 1: Navigate to Auto Tags
+
+1. Open the Signal app
+2. Click **Auto Tags** in the sidebar
+3. You'll see tabs for:
+   - **Enabled** - Your active auto tags
+   - **Built-in** - Pre-configured tags you can enable
+   - **My Tags** - Tags you've created
+
+### Step 2: Create a New Tag
+
+1. Click the **+ Create Tag** button
+2. Fill in the tag details:
+
+   **Name** (required)
+   - A short, descriptive name (e.g., "Payment failure", "Happy customer")
+   - Used in filters and session lists
+
+   **Description** (required)
+   - A detailed description of what this tag should detect
+   - Examples:
+     - "User expresses frustration or negative sentiment"
+     - "Checkout or billing attempt fails"
+     - "User shows clear positive sentiment"
+
+   **Output Type** (required)
+   - **Boolean** - Tag is either present or not (true/false)
+   - **String** - Tag has a text value
+   - **Number** - Tag has a numeric value
+   - **Enum** - Tag has one of predefined values
+   - **List&lt;enum&gt;** - Tag can have multiple enum values
+
+   **Enum Values** (required for enum types)
+   - List of possible values (e.g., ["Low", "Medium", "High"])
+   - One value per line
+
+3. Click **Create Tag**
+
+### Example: Creating a Boolean Tag
+
+```yaml
+Name: Payment failure
+Description: Checkout or billing attempt fails. User encounters errors during payment processing.
+Output Type: Boolean
+```
+
+This tag will automatically mark sessions where payment failures occur.
+
+### Example: Creating an Enum Tag
+
+```yaml
+Name: User sentiment
+Description: Overall sentiment expressed by the user during the session
+Output Type: Enum
+Enum Values:
+  - Positive
+  - Neutral
+  - Negative
+```
+
+This tag will categorize sessions by sentiment level.
+
+## Managing Auto Tags
+
+### Enable Built-in Tags
+
+1. Go to the **Built-in** tab
+2. Browse available tags
+3. Click **Enable** on tags you want to use
+4. Enabled tags will appear in the **Enabled** tab
+
+### Edit Auto Tags
+
+1. Go to the **Enabled** or **My Tags** tab
+2. Click the **Edit** icon (pencil) on a tag
+3. Modify the description
+4. Click **Save**
+
+> **Note:** You can only edit the description. To change the name or output type, create a new tag.
+
+### Delete Auto Tags
+
+1. Go to the **Enabled** or **My Tags** tab
+2. Click the **Delete** icon (trash) on a tag
+3. Confirm deletion
+
+> **Warning:** Deleting a tag removes it from all sessions. Historical data will no longer be tagged.
+
+### View Tag Metrics
+
+1. Click on a tag name to view its details
+2. See metrics including:
+   - **Total sessions** tagged
+   - **Trend over time** - Chart showing tag frequency
+   - **Recent sessions** - List of sessions with this tag
+
+## Using Auto Tags
+
+### Filter Sessions by Tag
+
+1. Go to the **Replays** page
+2. Use the filter dropdown
+3. Select tags to filter by
+4. Sessions matching the selected tags will be shown
+
+### View Tagged Sessions
+
+1. Go to the **Auto Tags** page
+2. Click on a tag name
+3. View all sessions with that tag
+4. Click on a session to view its replay
+
+### Export Tagged Sessions
+
+1. Filter sessions by tag
+2. Use the export feature to download session data
+3. Analyze tagged sessions in external tools
+
+## Best Practices
+
+### Writing Good Descriptions
+
+- **Be specific** - Clearly describe what should be detected
+- **Include context** - Mention relevant user actions or events
+- **Use examples** - Reference specific scenarios when helpful
+- **Avoid ambiguity** - Make it clear what qualifies
+
+**Good Example:**
+```
+User encounters a JavaScript error visible in the console or UI. 
+Error messages appear, network requests fail, or the page becomes unresponsive.
+```
+
+**Bad Example:**
+```
+Something goes wrong.
+```
+
+### Choosing Output Types
+
+- **Use Boolean** for yes/no categories (e.g., "Bug encountered", "Payment success")
+- **Use Enum** for categories with multiple options (e.g., "Priority: Low/Medium/High")
+- **Use String** for free-form text (e.g., "Error message")
+- **Use Number** for numeric values (e.g., "Cart value", "Page load time")
+
+### Tag Organization
+
+- **Group related tags** - Use consistent naming (e.g., "Payment failure", "Payment success")
+- **Start simple** - Begin with boolean tags, add complexity as needed
+- **Review regularly** - Check tag accuracy and adjust descriptions
+
+## Common Auto Tags
+
+### User Experience Tags
+
+- **Angry user** - User expresses frustration or negative sentiment
+- **Happy customer** - User shows clear positive sentiment
+- **Onboarding friction** - User gets stuck during signup or first-run
+
+### Technical Tags
+
+- **Bug encountered** - Visible error or broken UI is encountered
+- **Performance issue** - Slow page loads or laggy interactions
+- **Network error** - Failed API requests or network problems
+
+### Business Tags
+
+- **Payment failure** - Checkout or billing attempt fails
+- **Churn risk** - Signals indicate potential churn
+- **Feature request** - User requests a missing capability
+- **Pricing frustration** - User complains about price or discounts
+
+## Troubleshooting
+
+### Tag Not Appearing on Sessions
+
+- **Check description** - Ensure it clearly describes what to detect
+- **Wait for processing** - Tags are applied as sessions are analyzed
+- **Review examples** - Check if similar sessions are tagged correctly
+
+### Tag Too Broad or Too Narrow
+
+- **Refine description** - Add more specific criteria or examples
+- **Split tags** - Create separate tags for different scenarios
+- **Combine tags** - Use filters to combine multiple tags
+
+### Incorrect Tag Values
+
+- **Update description** - Clarify what should be detected
+- **Check enum values** - Ensure all valid options are included
+- **Review examples** - Verify tag is working as expected

@@ -1,0 +1,218 @@
+---
+title: "Signal App Overview"
+description: "Learn the basics of using the Signal app to analyze sessions and get insights"
+---
+
+# Signal App Overview
+
+The Signal app is a web application that helps you analyze user sessions, track metrics, and get insights from your session data. Once you've integrated the Signal SDK and started recording sessions, you can use the Signal app to view replays, create dashboards, and understand user behavior.
+
+## What is the Signal App?
+
+The Signal app provides:
+
+- **Session Replays** - Watch recordings of user sessions
+- **Dashboards** - Visualize analytics and track metrics
+- **Auto Tags** - Automatically categorize sessions with AI
+- **Chat** - Ask questions and get AI-powered insights
+- **Analytics** - Track events, users, and conversions
+
+## Accessing the Signal App
+
+### Sign In
+
+1. Navigate to your Signal app URL (provided by your administrator)
+2. Sign in with your credentials
+3. Select or create a project
+
+### Projects
+
+Projects organize your sessions and data:
+
+- **Create a project** - Set up a new project for your application
+- **Switch projects** - Use the project switcher in the sidebar
+- **Project settings** - Configure project-specific settings
+
+## Key Features
+
+### Session Replays
+
+Watch exactly what users did in your application:
+
+- **View recordings** - See user interactions, clicks, and navigation
+- **Inspect events** - View all events in chronological order
+- **Network requests** - See API calls and responses
+- **Console logs** - View JavaScript console output
+- **Filter sessions** - Find sessions by tags, date, or user
+
+**Learn more:** [Session Replays Guide](/app/session-replays)
+
+### Dashboards
+
+Create visual dashboards to track metrics:
+
+- **Widgets** - Add charts and visualizations
+- **Metrics** - Track events, sessions, users, and more
+- **Trends** - See how metrics change over time
+- **Funnels** - Visualize conversion flows
+- **Customize** - Build dashboards for your needs
+
+**Learn more:** [Dashboards Guide](/app/dashboards)
+
+### Auto Tags
+
+Automatically categorize sessions with AI:
+
+- **Create tags** - Define what to detect (e.g., "Payment failure", "Happy customer")
+- **AI analysis** - Sessions are automatically tagged
+- **Filter sessions** - Find sessions by tags
+- **Track patterns** - Identify common issues or behaviors
+
+**Learn more:** [Auto Tags Guide](/app/auto-tags)
+
+### Chat
+
+Get AI-powered insights about your sessions:
+
+- **Ask questions** - Query your session data
+- **Analyze sessions** - Get summaries and insights
+- **Find patterns** - Discover trends and issues
+- **Get recommendations** - Receive improvement suggestions
+
+**Learn more:** [Chat Guide](/app/chat)
+
+## Basic Workflow
+
+### 1. Record Sessions
+
+First, integrate the Signal SDK in your application:
+
+```typescript
+import { createSignal } from 'signal-js';
+
+const signal = createSignal({
+  endpoint: 'https://your-api.com/api/signal/v1',
+  apiKey: 'your-api-key',
+  projectId: 'your-project-id',
+});
+
+await signal.start();
+```
+
+Sessions will automatically start recording.
+
+### 2. View Sessions
+
+1. Open the Signal app
+2. Go to **Replays**
+3. Browse recorded sessions
+4. Click on a session to watch the replay
+
+### 3. Analyze Sessions
+
+- **Watch replays** - See what users did
+- **Check insights** - Read AI-generated insights
+- **Review tags** - See auto tags applied
+- **Inspect events** - View event timeline
+
+### 4. Create Dashboards
+
+1. Go to **Dashboards**
+2. Click **+ New Dashboard**
+3. Add widgets to track metrics
+4. Monitor your key performance indicators
+
+### 5. Set Up Auto Tags
+
+1. Go to **Auto Tags**
+2. Create tags for important patterns
+3. Enable built-in tags
+4. Sessions will be automatically tagged
+
+## Key Concepts
+
+### Sessions
+
+A session represents a single user visit:
+
+- **Session ID** - Unique identifier
+- **Duration** - How long the session lasted
+- **Events** - All actions recorded during the session
+- **User** - User information (if identified)
+
+### Events
+
+Events are actions that occur during a session:
+
+- **Page views** - Page navigation
+- **Clicks** - User interactions
+- **Network requests** - API calls
+- **Console logs** - JavaScript output
+- **Custom events** - Events you track
+
+### Auto Tags
+
+Tags automatically categorize sessions:
+
+- **Boolean tags** - Present or not (e.g., "Bug encountered")
+- **Enum tags** - Categories (e.g., "Priority: Low/Medium/High")
+- **String tags** - Text values
+- **Number tags** - Numeric values
+
+### Dashboards
+
+Dashboards visualize your data:
+
+- **Widgets** - Individual charts or visualizations
+- **Metrics** - Data points you're tracking
+- **Filters** - Date ranges and other filters
+- **Layout** - How widgets are arranged
+
+## Getting Started Checklist
+
+- [ ] **Integrate SDK** - Add Signal SDK to your application
+- [ ] **Configure SDK** - Set endpoint, API key, and project ID
+- [ ] **Start recording** - Sessions begin recording automatically
+- [ ] **Access Signal app** - Sign in to the web application
+- [ ] **View first session** - Watch a session replay
+- [ ] **Create a dashboard** - Set up your first dashboard
+- [ ] **Set up auto tags** - Create tags for important patterns
+- [ ] **Explore chat** - Ask questions about your sessions
+
+## Next Steps
+
+Now that you understand the basics:
+
+- **Learn about Session Replays** - [View detailed guide](/app/session-replays)
+- **Set up Dashboards** - [Create your first dashboard](/app/dashboards)
+- **Configure Auto Tags** - [Create and manage tags](/app/auto-tags)
+- **Use Chat** - [Get AI insights](/app/chat)
+
+## Tips for Success
+
+### Start Simple
+
+- **Begin with replays** - Watch a few sessions to understand user behavior
+- **Add basic tags** - Create 2-3 important tags first
+- **Create one dashboard** - Focus on key metrics
+- **Explore gradually** - Learn features as you need them
+
+### Focus on Value
+
+- **Track what matters** - Focus on metrics that impact your business
+- **Tag important patterns** - Create tags for issues you want to track
+- **Monitor trends** - Use dashboards to spot changes over time
+- **Act on insights** - Use findings to improve your product
+
+### Best Practices
+
+- **Review sessions regularly** - Check sessions daily or weekly
+- **Update tags** - Refine tag descriptions based on results
+- **Share dashboards** - Keep your team informed
+- **Use chat** - Ask questions to discover insights
+
+## Getting Help
+
+- **Documentation** - Check the guides for each feature
+- **Chat** - Use the chat feature to ask questions
+- **Support** - Contact support for technical issues

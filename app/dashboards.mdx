@@ -1,0 +1,274 @@
+---
+title: "Dashboards"
+description: "Create and manage dashboards to visualize your analytics data"
+---
+
+# Dashboards
+
+Dashboards help you visualize and track key metrics from your session data. Create custom dashboards with multiple widgets to monitor your product's health and user behavior.
+
+## What are Dashboards?
+
+Dashboards are collections of widgets that display analytics data in visual formats:
+
+- **Track metrics** - Monitor key performance indicators
+- **Visualize trends** - See how metrics change over time
+- **Compare data** - Analyze different events and properties
+- **Share insights** - Present data to your team
+
+## Creating a Dashboard
+
+### Step 1: Navigate to Dashboards
+
+1. Open the Signal app
+2. Click **Dashboards** in the sidebar
+3. Click **+ New Dashboard**
+
+### Step 2: Configure Dashboard
+
+1. Enter a **Dashboard Name** (required)
+   - Choose a descriptive name (e.g., "Product Health", "User Engagement")
+
+2. Enter a **Description** (optional)
+   - Explain what this dashboard tracks
+
+3. Click **Create Dashboard**
+
+### Step 3: Add Widgets
+
+After creating a dashboard, you'll see an empty dashboard. Add widgets:
+
+1. Click **+ Add Widget** or **Edit Dashboard**
+2. Select a widget type
+3. Configure the widget settings
+4. Click **Save**
+
+## Widget Types
+
+### Events Trend
+
+Shows how events change over time as a line chart.
+
+**Configuration:**
+- **Event Name** (optional) - Filter by specific event
+- **Group by Day** - Group results by day instead of hour
+- **Date Range** - Filter by date range
+
+**Use Cases:**
+- Track event volume over time
+- Monitor specific event trends
+- Compare event frequencies
+
+### Top Events
+
+Displays the most frequent events as a bar chart.
+
+**Configuration:**
+- **Limit** - Number of top events to show (default: 10)
+- **Date Range** - Filter by date range
+
+**Use Cases:**
+- Identify most common user actions
+- Find popular features
+- Track event distribution
+
+### Sessions Over Time
+
+Shows session count over time as a line chart.
+
+**Configuration:**
+- **Date Range** - Filter by date range
+
+**Use Cases:**
+- Monitor daily/weekly session volume
+- Track growth trends
+- Identify peak usage times
+
+### Average Session Duration
+
+Displays average session length over time.
+
+**Configuration:**
+- **Date Range** - Filter by date range
+
+**Use Cases:**
+- Track engagement levels
+- Monitor session quality
+- Identify engagement trends
+
+### Unique Users
+
+Shows the number of unique users over time.
+
+**Configuration:**
+- **Date Range** - Filter by date range
+
+**Use Cases:**
+- Track user growth
+- Monitor active users
+- Measure user retention
+
+### Event Breakdown
+
+Breaks down events by a specific property as a bar chart.
+
+**Configuration:**
+- **Property Name** (required) - Property to break down by
+- **Event Name** (optional) - Filter by specific event
+- **Limit** - Number of breakdown values to show
+- **Date Range** - Filter by date range
+
+**Use Cases:**
+- Analyze events by user property
+- Compare behavior across segments
+- Identify property patterns
+
+### Funnel
+
+Visualizes conversion through a series of steps.
+
+**Configuration:**
+- **Steps** (required) - Array of event names representing funnel steps
+- **Date Range** - Filter by date range
+
+**Example Steps:**
+```
+1. page_view
+2. signup_started
+3. signup_completed
+4. first_purchase
+```
+
+**Use Cases:**
+- Track conversion rates
+- Identify drop-off points
+- Optimize user flows
+
+## Managing Dashboards
+
+### View Dashboard
+
+1. Go to the **Dashboards** page
+2. Click on a dashboard name
+3. View all widgets with live data
+4. Widgets automatically refresh
+
+### Edit Dashboard
+
+1. Open a dashboard
+2. Click **Edit Dashboard**
+3. Modify dashboard name or description
+4. Add, remove, or configure widgets
+5. Click **Save Dashboard**
+
+### Delete Dashboard
+
+1. Open a dashboard
+2. Click **Delete Dashboard**
+3. Confirm deletion
+
+> **Warning:** Deleting a dashboard cannot be undone.
+
+### Duplicate Dashboard
+
+1. Open a dashboard
+2. Click **Duplicate**
+3. Enter a new name
+4. Click **Create**
+
+## Widget Configuration
+
+### Date Ranges
+
+All widgets support date range filtering:
+
+- **Last 7 days** - Past week
+- **Last 30 days** - Past month
+- **Last 90 days** - Past quarter
+- **Custom range** - Select specific dates
+
+### Refreshing Data
+
+- Widgets automatically refresh when you open a dashboard
+- Data is cached for performance
+- Click refresh to update manually
+
+### Widget Size
+
+- Widgets automatically size to fit the dashboard
+- Responsive layout adapts to screen size
+- Multiple widgets per row on larger screens
+
+## Best Practices
+
+### Dashboard Organization
+
+- **Group related metrics** - Keep similar widgets together
+- **Use clear names** - Make dashboard purpose obvious
+- **Limit widgets** - Too many widgets can be overwhelming
+- **Focus on key metrics** - Include only important data
+
+### Widget Selection
+
+- **Start with basics** - Sessions, events, users
+- **Add context** - Include breakdowns and funnels
+- **Track trends** - Use time-series widgets
+- **Monitor health** - Include error and performance metrics
+
+### Dashboard Naming
+
+- **Be descriptive** - "Product Health Dashboard" vs "Dashboard 1"
+- **Use categories** - "Engineering", "Product", "Growth"
+- **Include date** - "Q4 2024 Metrics" for time-bound dashboards
+
+## Example Dashboards
+
+### Product Health Dashboard
+
+**Widgets:**
+1. Sessions Over Time
+2. Average Session Duration
+3. Top Events
+4. Error Events Breakdown
+
+**Purpose:** Monitor overall product health and identify issues.
+
+### User Engagement Dashboard
+
+**Widgets:**
+1. Unique Users
+2. Events Trend (filtered by engagement events)
+3. Session Duration
+4. Funnel (signup → activation → first action)
+
+**Purpose:** Track user engagement and conversion.
+
+### Performance Dashboard
+
+**Widgets:**
+1. Average Session Duration
+2. Network Error Breakdown
+3. Console Error Trend
+4. Page Load Performance
+
+**Purpose:** Monitor technical performance and errors.
+
+## Troubleshooting
+
+### Widget Not Loading
+
+- **Check date range** - Ensure data exists for selected dates
+- **Verify event names** - Confirm events are being tracked
+- **Check permissions** - Ensure you have access to the project
+
+### Incorrect Data
+
+- **Verify filters** - Check widget configuration
+- **Check date range** - Ensure correct time period
+- **Review events** - Confirm events are being sent correctly
+
+### Missing Widgets
+
+- **Add widgets** - Click "Add Widget" in edit mode
+- **Check widget types** - Ensure widget type is supported
+- **Verify configuration** - Check widget settings

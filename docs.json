@@ -11,13 +11,43 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "index",
+        "quickstart",
+        "getting-started/signal-app"
+      ]
+    },
           {
-            "group": "Getting started",
+            "group": "Essentials",
             "pages": [
-              "index",
-              "quickstart"
+              "essentials/configuration",
+              "essentials/privacy-masking",
+              "essentials/network-capture",
+              "essentials/console-capture",
+              "essentials/user-identification",
+              "essentials/event-tracking"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "integrations/react",
+              "integrations/nextjs",
+              "integrations/vue",
+              "integrations/server-integration"
+            ]
+          },
+          {
+            "group": "Signal App",
+            "pages": [
+              "app/auto-tags",
+              "app/dashboards",
+              "app/chat",
+              "app/session-replays"
             ]
           }
         ]

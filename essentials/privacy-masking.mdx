@@ -1,0 +1,147 @@
+---
+title: "Privacy & Masking"
+description: "Protect sensitive data with automatic masking and privacy controls"
+---
+
+# Privacy & Masking
+
+Signal JS automatically protects sensitive data at multiple levels with built-in privacy controls.
+
+## DOM Element Masking
+
+Use CSS classes or data attributes to control what gets recorded:
+
+```html
+<!-- Block entire element from recording -->
+<div class="signal-no-capture">
+  This content will not appear in recordings
+</div>
+
+<!-- Mask text content (shows as ****) -->
+<span class="signal-mask">Sensitive text here</span>
+
+<!-- Ignore input value changes -->
+<input type="text" class="signal-ignore-input" />
+
+<!-- Using data attributes -->
+<div data-signal-block>Blocked content</div>
+<span data-signal-mask>Masked content</span>
+```
+
+## Input Field Masking
+
+By default, all input values are masked. Configure per input type:
+
+```typescript
+sessionRecordingMasking: {
+  maskAllInputs: true,  // Master switch
+  maskInputOptions: {
+    password: true,     // Always masked
+    email: true,        // Masked by default
+    tel: true,          // Masked by default
+    text: true,         // Masked by default
+    textarea: true,     // Masked by default
+    number: false,      // Not masked
+    search: false,      // Not masked
+    checkbox: false,    // Safe (only checked state)
+    radio: false,       // Safe (only selected state)
+  },
+}
+```
+
+## Automatic Sensitive Data Detection
+
+The SDK automatically detects and masks common sensitive data patterns:
+
+| Data Type | Pattern | Masked As |
+|-----------|---------|-----------|
+| Credit Cards | 4111 1111 1111 1111 | `****-****-****-****` |
+| SSN | 123-45-6789 | `***-**-****` |
+| Emails | user@example.com | `***@example.com` |
+| API Keys | sk_live_abc123... | `sk_live_***REDACTED***` |
+| JWT Tokens | eyJhbG... | `Bearer ***TOKEN***` |
+| Passwords | (in objects) | `***MASKED***` |
+
+## Console Log Masking
+
+Sensitive data in console logs is automatically masked:
+
+```javascript
+// Before masking:
+console.log('User credentials:', { password: 'secret123', ssn: '123-45-6789' });
+
+// Captured as:
+// "User credentials: { password: '***MASKED***', ssn: '***-**-****' }"
+```
+
+## Network Body Masking
+
+Request and response bodies are automatically sanitized:
+
+```javascript
+// Original request body:
+{ email: 'john@example.com', password: 'secret', card: '4111111111111111' }
+
+// Captured as:
+{ email: '***@example.com', password: '***MASKED***', card: '****-****-****-****' }
+```
+
+## Programmatic Control
+
+Control recording programmatically:
+
+```typescript
+// Temporarily pause recording
+signal.pauseRecording();
+
+// Resume recording
+signal.resumeRecording();
+
+// Check if recording is active
+if (signal.isRecording()) {
+  console.log('Recording is active');
+}
+
+// Stop recording entirely
+signal.stopRecording();
+```
+
+## Network Request Masking
+
+Customize network request masking:
+
+```typescript
+networkCaptureOptions: {
+  // Always redact these headers
+  sensitiveHeaders: [
+    'authorization',
+    'cookie',
+    'x-api-key',
+    'x-auth-token',
+  ],
+  
+  // Custom request masking function
+  maskRequestFn: (request) => {
+    // Return null to exclude the request entirely
+    if (request.url.includes('sensitive-endpoint')) {
+      return null;
+    }
+    
+    // Modify and return request to include it
+    if (request.body) {
+      request.body = maskSensitiveData(request.body);
+    }
+    
+    return request;
+  },
+}
+```
+
+## Best Practices
+
+1. **Use CSS classes** for static elements that should always be masked
+2. **Use data attributes** for dynamic content or when CSS classes aren't feasible
+3. **Enable automatic masking** for inputs by default (`maskAllInputs: true`)
+4. **Configure sensitive headers** to always redact authentication tokens
+5. **Use custom masking functions** for complex scenarios
+6. **Test your masking** to ensure sensitive data is properly protected

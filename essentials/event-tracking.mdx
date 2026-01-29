@@ -1,0 +1,244 @@
+---
+title: "Event Tracking"
+description: "Track custom events and page views"
+---
+
+# Event Tracking
+
+Track custom events, page views, and user interactions with Signal JS.
+
+## Custom Events
+
+### Simple Event
+
+```typescript
+signal.capture('button_clicked');
+```
+
+### Event with Properties
+
+```typescript
+signal.capture('purchase_completed', {
+  amount: 99.99,
+  currency: 'USD',
+  productId: 'prod_123',
+  quantity: 2,
+});
+```
+
+### Event with Timestamp
+
+```typescript
+signal.capture('order_shipped', {
+  orderId: 'order_456',
+}, {
+  timestamp: new Date('2024-01-15T10:00:00Z'),
+});
+```
+
+## Super Properties
+
+Properties automatically included with every event:
+
+### Register Super Properties
+
+```typescript
+// Register super properties
+signal.register({
+  appVersion: '2.1.0',
+  environment: 'production',
+  platform: 'web',
+});
+```
+
+### Register Once
+
+```typescript
+// Register only if not already set
+signal.registerOnce({
+  firstVisitDate: new Date().toISOString(),
+});
+```
+
+### Remove Super Property
+
+```typescript
+// Remove a super property
+signal.unregister('environment');
+```
+
+### Get All Super Properties
+
+```typescript
+const props = signal.getSuperProperties();
+```
+
+## Page Tracking
+
+### Automatic Page Views
+
+Enable automatic page view tracking:
+
+```typescript
+const signal = createSignal({
+  // ... other config
+  capturePageview: true,  // Default: true
+  capturePageleave: true,  // Default: true
+});
+```
+
+### Manual Page View
+
+```typescript
+// Manual page view
+signal.capturePageview({
+  path: '/products/123',
+  title: 'Product Details',
+});
+```
+
+### Track SPA Navigation
+
+For single-page applications, track navigation manually:
+
+```typescript
+// Track SPA navigation
+window.addEventListener('popstate', () => {
+  signal.capturePageview();
+});
+
+// Or with your router
+router.onRouteChange((route) => {
+  signal.capturePageview({
+    path: route.path,
+    title: route.title,
+  });
+});
+```
+
+## Recording Controls
+
+Control when events are sent:
+
+```typescript
+// Start recording (called automatically on init)
+await signal.start();
+
+// Pause recording (events still tracked, replay paused)
+signal.pauseRecording();
+
+// Resume recording
+signal.resumeRecording();
+
+// Stop recording entirely
+signal.stopRecording();
+
+// Check recording state
+signal.isRecording();  // true/false
+
+// Get current session ID
+signal.getSessionId();
+
+// Get current window ID
+signal.getWindowId();
+
+// Force flush pending events
+await signal.flush();
+
+// Shutdown SDK gracefully
+await signal.shutdown();
+```
+
+## Example: Complete Event Tracking
+
+```typescript
+import { createSignal } from 'signal-js';
+
+const signal = createSignal({
+  endpoint: 'https://your-api.com/api/signal/v1',
+  apiKey: 'your-api-key',
+  projectId: 'your-project-id',
+  
+  // Enable automatic page tracking
+  capturePageview: true,
+  capturePageleave: true,
+});
+
+await signal.start();
+
+// Register super properties
+signal.register({
+  appVersion: '2.1.0',
+  environment: 'production',
+});
+
+// Track custom events
+function handleButtonClick(buttonId) {
+  signal.capture('button_clicked', {
+    buttonId,
+    page: window.location.pathname,
+  });
+}
+
+function handlePurchase(amount, productId) {
+  signal.capture('purchase_completed', {
+    amount,
+    productId,
+    currency: 'USD',
+  });
+}
+
+// Track page views manually (for SPAs)
+function trackPageView(path, title) {
+  signal.capturePageview({
+    path,
+    title,
+  });
+}
+```
+
+## Event Structure
+
+All events follow this structure:
+
+```typescript
+interface SignalEvent {
+  type: string;           // Event type
+  name?: string;          // Event name
+  timestamp: number;      // Unix timestamp (ms)
+  sessionId: string;      // Session ID (UUIDv7)
+  windowId: string;       // Window/tab ID (UUIDv7)
+  distinctId?: string;    // User ID
+  properties?: object;    // Event properties
+  event?: object;         // Event-specific data (rrweb, network, etc.)
+}
+```
+
+## Event Types
+
+| Type | Description |
+|------|-------------|
+| `rrweb` | Session replay event (DOM mutations, interactions) |
+| `$pageview` | Page view event |
+| `$pageleave` | Page leave event |
+| `$identify` | User identification |
+| `$groupidentify` | Group association |
+| `$performance` | Performance metrics |
+| `console` | Console log event |
+| `custom` | Custom tracked event |
+
+## Use Cases
+
+- **Track user interactions** - Button clicks, form submissions, etc.
+- **Monitor conversions** - Purchase events, sign-ups, etc.
+- **Measure engagement** - Page views, time on page, etc.
+- **Debug issues** - Track errors and user flows
+- **Analytics** - Understand user behavior and patterns
+
+## Best Practices
+
+1. **Use descriptive event names** - `purchase_completed` instead of `event1`
+2. **Include relevant properties** - Add context that helps with analysis
+3. **Use super properties** - Set common properties once, not per event
+4. **Track key user actions** - Focus on events that matter for your business
+5. **Test your events** - Verify events are being captured correctly

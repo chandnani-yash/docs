@@ -1,0 +1,208 @@
+---
+title: "Network Capture"
+description: "Capture network requests and responses with headers and body recording"
+---
+
+# Network Capture
+
+Signal JS automatically captures network requests made via `fetch` and `XMLHttpRequest`, including headers and response bodies.
+
+## Configuration
+
+```typescript
+networkCaptureOptions: {
+  // Record headers (boolean or per-type)
+  recordHeaders: true,
+  // or
+  recordHeaders: {
+    request: true,
+    response: false,
+  },
+  
+  // Record body (boolean, content-types array, or per-type)
+  recordBody: true,
+  // or
+  recordBody: ['application/json', 'text/plain'],
+  // or
+  recordBody: {
+    request: ['application/json'],
+    response: true,
+  },
+  
+  // Exclude certain URLs
+  urlDenyList: [
+    /analytics/,
+    /tracking/,
+    'api.stripe.com',
+  ],
+  
+  // Always redact these headers
+  sensitiveHeaders: [
+    'authorization',
+    'cookie',
+    'set-cookie',
+    'x-api-key',
+  ],
+  
+  // Maximum body size to capture in bytes (default: 1MB)
+  payloadSizeLimitBytes: 1000000,
+  
+  // Custom request masking function
+  maskRequestFn: (request) => {
+    // Return null to exclude the request entirely
+    // Modify and return request to include it
+    return request;
+  },
+}
+```
+
+## Captured Data
+
+Each network request captures:
+
+```typescript
+{
+  url: 'https://api.example.com/users',
+  method: 'POST',
+  status: 200,
+  initiatorType: 'fetch',  // or 'xmlhttprequest', 'navigation', etc.
+  startTime: 1234.5,
+  duration: 150,
+  timestamp: '2024-01-15T10:30:00.000Z',
+  
+  // If headers recording is enabled
+  requestHeaders: {
+    'content-type': 'application/json',
+    'authorization': '[REDACTED]',  // Sensitive headers masked
+  },
+  responseHeaders: { ... },
+  
+  // If body recording is enabled
+  requestBody: '{"name":"John"}',
+  responseBody: '{"id":123}',
+}
+```
+
+## URL Deny List
+
+Exclude specific URLs or patterns from capture:
+
+```typescript
+urlDenyList: [
+  /analytics\.google\.com/i,  // Regex pattern
+  /sentry\.io/i,
+  'api.stripe.com',           // Exact hostname match
+  /^https:\/\/internal\./,    // Pattern matching
+]
+```
+
+## Sensitive Headers
+
+Headers that are automatically redacted:
+
+```typescript
+sensitiveHeaders: [
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'x-api-key',
+  'x-auth-token',
+  'x-csrf-token',
+]
+```
+
+## Body Size Limits
+
+Limit the size of captured request/response bodies:
+
+```typescript
+payloadSizeLimitBytes: 1000000,  // 1MB default
+```
+
+Requests exceeding this limit will have their bodies truncated or excluded.
+
+## Custom Request Masking
+
+Use a custom function to mask or exclude requests:
+
+```typescript
+maskRequestFn: (request) => {
+  // Exclude entire request
+  if (request.url.includes('/admin')) {
+    return null;
+  }
+  
+  // Mask sensitive data in body
+  if (request.body && request.body.password) {
+    request.body.password = '***MASKED***';
+  }
+  
+  // Return modified request
+  return request;
+}
+```
+
+## Content-Type Filtering
+
+Only capture bodies for specific content types:
+
+```typescript
+recordBody: ['application/json', 'text/plain', 'application/xml']
+```
+
+Or configure separately for requests and responses:
+
+```typescript
+recordBody: {
+  request: ['application/json'],
+  response: true,  // Capture all response bodies
+}
+```
+
+## Example: Complete Configuration
+
+```typescript
+import { createSignal } from 'signal-js';
+
+const signal = createSignal({
+  endpoint: 'https://your-api.com/api/signal/v1',
+  apiKey: 'your-api-key',
+  projectId: 'your-project-id',
+  
+  captureNetworkRequests: true,
+  networkCaptureOptions: {
+    recordHeaders: {
+      request: true,
+      response: true,
+    },
+    recordBody: ['application/json', 'text/plain'],
+    urlDenyList: [
+      /analytics\.google\.com/i,
+      /sentry\.io/i,
+    ],
+    sensitiveHeaders: [
+      'authorization',
+      'cookie',
+      'x-api-key',
+    ],
+    payloadSizeLimitBytes: 1000000,
+    maskRequestFn: (request) => {
+      // Exclude admin endpoints
+      if (request.url.includes('/admin')) {
+        return null;
+      }
+      return request;
+    },
+  },
+});
+
+await signal.start();
+```
+
+## Use Cases
+
+- **Debug API errors** by seeing the exact request/response that caused issues
+- **Monitor API performance** with request duration tracking
+- **Track user flows** by correlating network requests with user actions
+- **Debug authentication** issues by inspecting headers (with sensitive data masked)
+- **Analyze payload sizes** to optimize API responses
