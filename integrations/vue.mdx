@@ -5,12 +5,12 @@ description: "Use Signal JS with Vue.js"
 
 # Vue.js Integration
 
-Use Signal JS with Vue.js by installing the `signal-js` package directly.
+Use Signal JS with Vue.js by installing the `@signal-js/browser` package directly.
 
 ## Installation
 
 ```bash
-npm install signal-js
+npm install @signal-js/browser
 ```
 
 ## Setup
@@ -20,7 +20,7 @@ Initialize Signal JS in your Vue application:
 ```vue
 <script setup>
 import { onMounted } from 'vue'
-import { createSignal } from 'signal-js'
+import { createSignal } from '@signal-js/browser'
 
 let signal = null
 
@@ -64,7 +64,7 @@ Track page views with Vue Router:
 <script setup>
 import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { createSignal } from 'signal-js'
+import { createSignal } from '@signal-js/browser'
 
 const route = useRoute()
 let signal = null
@@ -103,7 +103,7 @@ Create a composable for easier use:
 ```typescript
 // composables/useSignal.ts
 import { ref, onMounted } from 'vue'
-import { createSignal } from 'signal-js'
+import { createSignal } from '@signal-js/browser'
 
 let signalInstance = null
 
@@ -157,7 +157,7 @@ function handleButtonClick() {
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { createSignal } from 'signal-js'
+import { createSignal } from '@signal-js/browser'
 
 const router = useRouter()
 let signal = null

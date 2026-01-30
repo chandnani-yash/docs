@@ -14,11 +14,11 @@ Choose the package for your framework:
 ### Vanilla JS / HTML / Vue.js
 
 ```bash
-npm install signal-js
+npm install @signal-js/browser
 # or
-pnpm add signal-js
+pnpm add @signal-js/browser
 # or
-yarn add signal-js
+yarn add @signal-js/browser
 ```
 
 ### React
@@ -39,13 +39,13 @@ npm install @signal-js/nextjs
 npm install @signal-js/node
 ```
 
-> **Note:** Framework packages (`@signal-js/react`, `@signal-js/nextjs`) automatically include the browser SDK (`signal-js`). You only need to install one package.
+> **Note:** Framework packages (`@signal-js/react`, `@signal-js/nextjs`) automatically include the browser SDK (`@signal-js/browser`). You only need to install one package.
 
 ### CDN
 
 ```html
 <!-- Full bundle with rrweb (recommended) -->
-<script src="https://unpkg.com/signal-js/dist/signal-full.global.js"></script>
+<script src="https://unpkg.com/@signal-js/browser/dist/signal-full.global.js"></script>
 ```
 
 ## Basic Usage
@@ -53,7 +53,7 @@ npm install @signal-js/node
 ### Browser (NPM)
 
 ```typescript
-import { createSignal } from 'signal-js';
+import { createSignal } from '@signal-js/browser';
 
 const signal = createSignal({
   endpoint: 'https://your-api.com/api/signal/v1',
@@ -77,7 +77,7 @@ signal.capture('button_clicked', { buttonId: 'submit' });
 ### Browser (CDN)
 
 ```html
-<script src="https://unpkg.com/signal-js/dist/signal-full.global.js"></script>
+<script src="https://unpkg.com/@signal-js/browser/dist/signal-full.global.js"></script>
 <script>
   const signal = SignalSDK.createSignal({
     endpoint: 'https://your-api.com/api/signal/v1',
