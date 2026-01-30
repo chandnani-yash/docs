@@ -1,0 +1,73 @@
+---
+title: "Initialization"
+description: "Install and set up @signal-js/browser in Vue, Vanilla JS, or any framework"
+---
+
+# Vue / Browser — Initialization
+
+Use **@signal-js/browser** with **Vue**, **Vanilla JS**, **Svelte**, **Angular**, or any JavaScript framework. Install the package, create a Signal instance with `createSignal()`, and call `await signal.start()` when your app is ready.
+
+## Installation
+
+```bash
+npm install @signal-js/browser
+```
+
+No framework-specific package is required. The same API works in all browser environments.
+
+## Vue setup
+
+Initialize Signal in your Vue app (e.g. in `onMounted` or a composable). Create one instance and call `start()` once.
+
+```vue
+<script setup>
+import { onMounted } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signal = null
+
+onMounted(async () => {
+  signal = createSignal({
+    endpoint: 'https://your-api.com/api/signal/v1',
+    apiKey: 'your-api-key',
+    projectId: 'your-project-id',
+  })
+  
+  await signal.start()
+})
+</script>
+```
+
+Then use `signal.capture()`, `signal.identify()`, etc. in methods or composables.
+
+## Vanilla JS
+
+Same API in plain HTML/JS or with a bundler:
+
+```html
+<script type="module">
+  import { createSignal } from '@signal-js/browser';
+
+  const signal = createSignal({
+    endpoint: 'https://your-api.com/api/signal/v1',
+    apiKey: 'your-api-key',
+    projectId: 'your-project-id',
+  });
+
+  await signal.start();
+</script>
+```
+
+With Vite or webpack, import once at app entry and reuse the instance wherever you track events.
+
+## Other frameworks
+
+- **Svelte** — Call `createSignal()` in `onMount` or at module scope; pass the instance where needed.
+- **Angular** — Create the client in a service or `APP_INITIALIZER` and inject it where you track events.
+- **Any other framework** — One `createSignal(options)` call, then `await signal.start()`. Use `signal.capture()`, `signal.identify()`, and the rest of the API as needed.
+
+## Next steps
+
+- [Capture](/docs/integrations/vue/capture) — Track events
+- [Identify](/docs/integrations/vue/identify) — Identify users
+- [Configuration](/docs/integrations/vue/configuration) — All options

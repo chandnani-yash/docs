@@ -1,0 +1,58 @@
+---
+title: "Page views"
+description: "Track page views with Vue Router or manually"
+---
+
+# Vue / Browser — Page views
+
+When `enableSessionTracking` is `true` (default), the SDK tracks page views automatically on URL changes. For SPAs with Vue Router, you can also send `$pageview` manually on route changes using `signal.capture('$pageview', { ... })`.
+
+## Automatic tracking
+
+With `enableSessionTracking: true` (default), the SDK tracks the initial page view and URL changes. Page leave (`$pageleave`) is sent on `beforeunload` and tab visibility change. No extra code needed.
+
+## Manual: Vue Router
+
+Track `$pageview` on route changes by watching the route and calling `capture`:
+
+```vue
+<script setup>
+import { onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { createSignal } from '@signal-js/browser'
+
+const route = useRoute()
+let signal = null
+
+onMounted(async () => {
+  signal = createSignal({
+    endpoint: '...',
+    apiKey: '...',
+    projectId: '...',
+    enableSessionTracking: true,
+  })
+  await signal.start()
+  
+  signal.capture('$pageview', {
+    $pathname: route.path,
+    $title: document.title,
+    $current_url: window.location.href,
+  })
+})
+
+watch(() => route.path, () => {
+  signal?.capture('$pageview', {
+    $pathname: route.path,
+    $title: document.title,
+    $current_url: window.location.href,
+  })
+})
+</script>
+```
+
+Use the same pattern in other frameworks (e.g. watch the router or history and call `signal.capture('$pageview', { ... })`).
+
+## See also
+
+- [Capture](/docs/integrations/vue/capture) — Custom events
+- [Configuration](/docs/integrations/vue/configuration) — enableSessionTracking

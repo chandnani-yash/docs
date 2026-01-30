@@ -1,0 +1,59 @@
+---
+title: "Group"
+description: "Associate users with groups and set group properties"
+---
+
+# Node — Group
+
+Associate users with groups (e.g. company, organization) and set group properties. Use `groupIdentify()` to set or update group attributes and `group()` to associate a user with a group.
+
+## groupIdentify(options, sessionId?, windowId?)
+
+Set or update group properties. Sends `$groupidentify`.
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `groupType` | `string` | yes | e.g. `'company'`, `'organization'` |
+| `groupKey` | `string` | yes | Group identifier |
+| `properties` | `Record<string, JsonType>` | no | Group properties to set |
+
+```typescript
+signal.groupIdentify(
+  { groupType: 'company', groupKey: 'acme', properties: { plan: 'enterprise', seats: 50 } },
+  sessionId,
+  windowId
+);
+```
+
+## group(distinctId, groupType, groupKey, properties?, sessionId?, windowId?)
+
+Associate a user with a group. Sends `$group_assign` event. If `properties` are provided, also calls `groupIdentify()` to set group properties.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `groupType` | `string` | yes | Type of group (e.g. `'company'`, `'organization'`) |
+| `groupKey` | `string` | yes | Unique identifier for the group |
+| `properties` | `Record<string, JsonType>` | no | Group properties to set |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+**When to use:** When a user joins or is associated with a group (e.g. company, team, organization).
+
+```typescript
+const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+signal.group(
+  distinctId || userId,
+  'company',
+  'acme',
+  { role: 'admin' },
+  sessionId,
+  windowId
+);
+```
+
+## See also
+
+- [Identify](/docs/integrations/node/identify) — identify()
+- [Capture](/docs/integrations/node/capture) — capture()

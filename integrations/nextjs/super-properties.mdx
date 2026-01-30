@@ -1,0 +1,130 @@
+---
+title: "Super properties"
+description: "Register properties included with every event (client only)"
+---
+
+# Next.js — Super properties
+
+Super properties are automatically included with every event you capture. Use `register()` to add properties, `registerOnce()` to add them only if not already set, and `unregister()` to remove them. **Note:** Super properties are client-side only; they don't apply to server-side events.
+
+## Client: useSignal
+
+Get `register`, `registerOnce`, `unregister`, and `getSuperProperties` from `useSignal()`:
+
+```tsx
+'use client';
+
+import { useSignal } from '@signal-js/nextjs/client';
+import { useEffect } from 'react';
+
+function App() {
+  const { register, registerOnce, unregister, getSuperProperties } = useSignal();
+
+  useEffect(() => {
+    // Register app version with all events
+    register({ appVersion: '1.2.3' });
+    
+    // Register environment only once
+    registerOnce({ environment: 'production' });
+  }, []);
+
+  return <YourApp />;
+}
+```
+
+## register(properties)
+
+Add properties that will be included with every event. Overwrites existing properties with the same keys.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | Properties to include with all events |
+
+**When to use:** Properties that apply to all events (e.g. app version, environment, user role, A/B test variants).
+
+```tsx
+const { register } = useSignal();
+
+// Register app version - will be included in all events
+register({ appVersion: '1.2.3', environment: 'production' });
+
+// Later, update app version (overwrites previous value)
+register({ appVersion: '1.2.4' });
+```
+
+## registerOnce(properties)
+
+Add properties only if they are not already registered. Useful for one-time attributes.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | Properties to register (only if not already set) |
+
+**When to use:** Properties that should be set once and never overwritten (e.g. initial app version, first session date).
+
+```tsx
+const { registerOnce } = useSignal();
+
+// Register initial app version only once
+registerOnce({ initialAppVersion: '1.0.0' });
+```
+
+## unregister(propertyName)
+
+Remove a super property so it's no longer included with events.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `propertyName` | `string` | yes | Name of the property to remove |
+
+**When to use:** When a property no longer applies (e.g. user leaves an A/B test, app version is deprecated).
+
+```tsx
+const { unregister } = useSignal();
+
+// Remove app version from super properties
+unregister('appVersion');
+```
+
+## getSuperProperties()
+
+Get all currently registered super properties. Returns `Record<string, unknown>`.
+
+**When to use:** Debugging or checking which properties are registered.
+
+```tsx
+const { getSuperProperties } = useSignal();
+
+const superProps = getSuperProperties();
+console.log('Super properties:', superProps);
+```
+
+## Example: A/B testing
+
+```tsx
+'use client';
+
+import { useSignal } from '@signal-js/nextjs/client';
+import { useEffect } from 'react';
+
+function ExperimentBanner({ experimentVariant }) {
+  const { register, unregister } = useSignal();
+
+  useEffect(() => {
+    // Register experiment variant with all events
+    register({ experimentVariant });
+
+    return () => {
+      // Clean up when component unmounts
+      unregister('experimentVariant');
+    };
+  }, [experimentVariant, register, unregister]);
+
+  return <div>Experiment: {experimentVariant}</div>;
+}
+```
+
+## See also
+
+- [Capture](/docs/integrations/nextjs/capture) — Track events (super properties are included automatically)
+- [Identify](/docs/integrations/nextjs/identify) — Set user identity

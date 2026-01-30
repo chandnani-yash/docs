@@ -1,0 +1,112 @@
+---
+title: "Super properties"
+description: "Register properties included with every event using register, registerOnce, and unregister"
+---
+
+# Vue / Browser — Super properties
+
+Super properties are automatically included with every event you capture. Use `register()` to add properties, `registerOnce()` to add them only if not already set, and `unregister()` to remove them.
+
+## register(properties)
+
+Add properties that will be included with every event. Overwrites existing properties with the same keys.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | Properties to include with all events |
+
+**When to use:** Properties that apply to all events (e.g. app version, environment, user role, A/B test variants).
+
+## registerOnce(properties)
+
+Add properties only if they are not already registered. Useful for one-time attributes.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | Properties to register (only if not already set) |
+
+**When to use:** Properties that should be set once and never overwritten (e.g. initial app version, first session date).
+
+## unregister(propertyName)
+
+Remove a super property so it's no longer included with events.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `propertyName` | `string` | yes | Name of the property to remove |
+
+**When to use:** When a property no longer applies (e.g. user leaves an A/B test, app version is deprecated).
+
+## getSuperProperties()
+
+Get all currently registered super properties. Returns `Record<string, unknown>`.
+
+**When to use:** Debugging or checking which properties are registered.
+
+## Vue example
+
+```vue
+<script setup>
+import { onMounted, onUnmounted } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signal = null
+
+onMounted(async () => {
+  signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' })
+  await signal.start()
+  
+  // Register app version with all events
+  signal.register({ appVersion: '1.2.3', environment: 'production' })
+  
+  // Register environment only once
+  signal.registerOnce({ initialAppVersion: '1.0.0' })
+})
+
+onUnmounted(() => {
+  // Clean up when component unmounts
+  signal?.unregister('appVersion')
+})
+</script>
+```
+
+## Vanilla JS example
+
+```javascript
+const signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' });
+await signal.start();
+
+// Register app version - will be included in all events
+signal.register({ appVersion: '1.2.3', environment: 'production' });
+
+// Register initial app version only once
+signal.registerOnce({ initialAppVersion: '1.0.0' });
+
+// Later, update app version (overwrites previous value)
+signal.register({ appVersion: '1.2.4' });
+
+// Get all super properties
+const superProps = signal.getSuperProperties();
+console.log('Super properties:', superProps);
+
+// Remove app version
+signal.unregister('appVersion');
+```
+
+## Example: A/B testing
+
+```javascript
+// Register experiment variant
+signal.register({ experimentVariant: 'variant_a' });
+
+// All events will include experimentVariant: 'variant_a'
+signal.capture('button_clicked', { buttonId: 'cta' });
+
+// Later, remove experiment variant
+signal.unregister('experimentVariant');
+```
+
+## See also
+
+- [Capture](/docs/integrations/vue/capture) — Track events (super properties are included automatically)
+- [Identify](/docs/integrations/vue/identify) — Set user identity

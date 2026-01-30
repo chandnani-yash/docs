@@ -1,0 +1,61 @@
+---
+title: "Page views"
+description: "Track page views and navigation in React with usePageView and useTrackEvent"
+---
+
+# React — Page views
+
+Track page views when components mount (e.g. for SPA navigation) using `usePageView`. For custom events tied to a specific event name, use `useTrackEvent`.
+
+## usePageView
+
+Track a `$pageview` (or `$pageview_<name>`) when the component mounts. Useful for product or article pages where the “page” is a route or a key piece of content.
+
+```tsx
+import { usePageView } from '@signal-js/react';
+
+function ProductPage({ product }) {
+  usePageView('product', {
+    productId: product.id,
+    productName: product.name,
+  });
+
+  return <div>{product.name}</div>;
+}
+```
+
+- **pageName** (`string` optional) — If provided, the event is `$pageview_<pageName>`; otherwise `$pageview`.
+- **properties** (`Record<string, unknown>` optional) — Extra properties (e.g. `productId`, `productName`).
+
+The hook adds `$current_url`, `$pathname`, and `$title` when available. It runs when the component mounts and when dependencies (`pageName`, `properties`) change. **Note:** `properties` is compared by reference. If you pass an object literal (e.g. `usePageView('product', { productId: product.id })`), a new object is created every render and the effect may run repeatedly. Memoize with `useMemo` or pass a stable reference to avoid duplicate page views.
+
+## useTrackEvent
+
+Get a typed capture function for a specific event name. Use it when you want to fire one event type from a component (e.g. `product_viewed`) with different properties.
+
+```tsx
+import { useEffect } from 'react';
+import { useTrackEvent } from '@signal-js/react';
+
+function ProductCard({ product }) {
+  const trackView = useTrackEvent<{ productId: string; productName: string }>('product_viewed');
+
+  useEffect(() => {
+    trackView({ productId: product.id, productName: product.name });
+  }, [product.id, product.name, trackView]);
+
+  return <div>{product.name}</div>;
+}
+```
+
+- **eventName** (`string`) — The event name (e.g. `'product_viewed'`).
+- Returns a function `(properties?: T) => void` that captures that event with the given properties.
+
+## useSignalSession
+
+For session info (e.g. `sessionId`, `windowId`, `sessionDuration`, `isRecording`) use `useSignalSession()` from `@signal-js/react`. See the main [React integration](/docs/integrations/react#available-hooks) for the full hooks list.
+
+## See also
+
+- [Capture](/docs/integrations/react/capture) — Custom events
+- [Initialization](/docs/integrations/react/initialization) — Provider setup

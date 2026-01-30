@@ -1,0 +1,62 @@
+---
+title: "Identify"
+description: "Identify users in Next.js (client and server)"
+---
+
+# Next.js — Identify
+
+Identify users from client components (using React hooks) or from the server. On the server, pass `sessionId` and `windowId` from request headers when you have them so events stay correlated with the client session.
+
+## Client: useSignalIdentify
+
+Use the same hook as the [React integration](/docs/integrations/react/identify), re-exported from `@signal-js/nextjs/client`:
+
+```tsx
+'use client';
+
+import { useSignalIdentify } from '@signal-js/nextjs/client';
+
+export function LoginForm() {
+  const { identify, reset } = useSignalIdentify();
+
+  const handleLogin = (user) => {
+    identify(user.id, { email: user.email, name: user.name });
+  };
+
+  const handleLogout = () => {
+    reset();
+  };
+
+  return (
+    <>
+      <button onClick={() => handleLogin({ id: 'user_123', email: 'j@example.com', name: 'Jane' })}>
+        Log in
+      </button>
+      <button onClick={handleLogout}>Log out</button>
+    </>
+  );
+}
+```
+
+## Server: identify(options)
+
+From API routes or Server Actions, call `signal.identify()` with an options object. Include `sessionId` and `windowId` from the request when you want to tie the identify to the same browser session:
+
+```typescript
+import { signal, getSessionInfo } from '@/lib/signal-server';
+
+// In an API route or Server Action after reading headers:
+const { sessionId, windowId, distinctId } = getSessionInfo(request);
+
+signal.identify({
+  distinctId: userId,
+  properties: { email: 'user@example.com', name: 'Jane' },
+  sessionId,
+  windowId,
+});
+```
+
+## See also
+
+- [Capture](/docs/integrations/nextjs/capture) — Track events
+- [Initialization](/docs/integrations/nextjs/initialization) — Server client setup

@@ -1,0 +1,91 @@
+---
+title: "Alias"
+description: "Link an alias to a user with signal.alias()"
+---
+
+# React — Alias
+
+Link an alias (e.g. anonymous ID) to the current user. Use this to merge anonymous events (from before login) with the identified user. Access via `useSignal()`.
+
+## Accessing the method
+
+Get `alias` from `useSignal()`:
+
+```tsx
+import { useSignal } from '@signal-js/react';
+
+function LoginHandler({ anonymousId, userId }) {
+  const { alias } = useSignal();
+
+  const handleLogin = () => {
+    // Link anonymous ID to the identified user
+    if (anonymousId) {
+      alias(anonymousId);
+    }
+  };
+
+  return <button onClick={handleLogin}>Log in</button>;
+}
+```
+
+## alias(alias)
+
+Links an alias to the current user. Sends a `$create_alias` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `alias` | `string` | yes | Alias to link (e.g. previous anonymous ID) |
+
+**When to use:** After login to merge anonymous events (from before login) with the identified user. This ensures all events are associated with the same user profile.
+
+## Example: Login flow
+
+```tsx
+import { useSignal } from '@signal-js/react';
+import { useEffect, useState } from 'react';
+
+function LoginFlow() {
+  const { identify, alias, distinctId } = useSignal();
+  const [anonymousId, setAnonymousId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Store anonymous ID before login
+    if (!distinctId) {
+      // Get anonymous ID from localStorage or generate one
+      const stored = localStorage.getItem('anonymous_id');
+      if (stored) {
+        setAnonymousId(stored);
+      }
+    }
+  }, [distinctId]);
+
+  const handleLogin = async (userId: string, userTraits: Record<string, unknown>) => {
+    // Identify the user
+    identify(userId, userTraits);
+
+    // Link anonymous ID if it exists
+    if (anonymousId) {
+      alias(anonymousId);
+      localStorage.removeItem('anonymous_id');
+    }
+  };
+
+  return (
+    <button onClick={() => handleLogin('user_123', { email: 'user@example.com' })}>
+      Log in
+    </button>
+  );
+}
+```
+
+## How it works
+
+1. **Before login:** User browses anonymously. Events are tracked with an anonymous ID.
+2. **After login:** Call `identify(userId, traits)` to set the user's identity.
+3. **Link alias:** Call `alias(anonymousId)` to link the anonymous ID to the identified user.
+4. **Result:** All events (both anonymous and identified) are now associated with the same user profile.
+
+## See also
+
+- [Identify](/docs/integrations/react/identify) — identify() and reset()
+- [Capture](/docs/integrations/react/capture) — Track events

@@ -1,0 +1,105 @@
+---
+title: "Alias"
+description: "Link an alias to a user (client and server)"
+---
+
+# Next.js — Alias
+
+Link an alias (e.g. anonymous ID) to a user. Use this to merge anonymous events (from before login) with the identified user. Available on both client and server.
+
+## Client: useSignal
+
+Get `alias` from `useSignal()`:
+
+```tsx
+'use client';
+
+import { useSignal } from '@signal-js/nextjs/client';
+import { useEffect, useState } from 'react';
+
+function LoginHandler({ userId, userTraits }) {
+  const { identify, alias } = useSignal();
+  const [anonymousId, setAnonymousId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Store anonymous ID before login
+    const stored = localStorage.getItem('anonymous_id');
+    if (stored) {
+      setAnonymousId(stored);
+    }
+  }, []);
+
+  const handleLogin = () => {
+    // Identify the user
+    identify(userId, userTraits);
+
+    // Link anonymous ID if it exists
+    if (anonymousId) {
+      alias(anonymousId);
+      localStorage.removeItem('anonymous_id');
+    }
+  };
+
+  return <button onClick={handleLogin}>Log in</button>;
+}
+```
+
+## Client: alias(alias)
+
+Links an alias to the current user. Sends a `$create_alias` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `alias` | `string` | yes | Alias to link (e.g. previous anonymous ID) |
+
+**When to use:** After login to merge anonymous events (from before login) with the identified user.
+
+## Server: alias(distinctId, alias, sessionId?, windowId?)
+
+Link an alias to a user from the server. Pass `sessionId` and `windowId` for client correlation.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `distinctId` | `string` | yes | Current user identifier (e.g. after login) |
+| `alias` | `string` | yes | Alias to link (e.g. previous anonymous ID) |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+```typescript
+// app/api/auth/login/route.ts
+import { signal, getSessionInfo } from '@/lib/signal-server';
+import { NextRequest } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  const { sessionId, windowId, distinctId } = getSessionInfo(request);
+  const body = await request.json();
+
+  // Identify the user
+  signal.identify({
+    distinctId: body.userId,
+    properties: { email: body.email, name: body.name },
+    sessionId,
+    windowId,
+  });
+
+  // Link anonymous ID if provided
+  if (body.anonymousId) {
+    signal.alias(body.userId, body.anonymousId, sessionId, windowId);
+  }
+
+  return Response.json({ success: true });
+}
+```
+
+## How it works
+
+1. **Before login:** User browses anonymously. Events are tracked with an anonymous ID.
+2. **After login:** Call `identify(userId, traits)` to set the user's identity.
+3. **Link alias:** Call `alias(anonymousId)` to link the anonymous ID to the identified user.
+4. **Result:** All events (both anonymous and identified) are now associated with the same user profile.
+
+## See also
+
+- [Identify](/docs/integrations/nextjs/identify) — identify() and reset()
+- [Capture](/docs/integrations/nextjs/capture) — Track events
+- [Server tracking](/docs/integrations/nextjs/server-tracking) — Server-side patterns

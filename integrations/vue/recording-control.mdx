@@ -1,0 +1,139 @@
+---
+title: "Recording control"
+description: "Control session replay recording with start, stop, pauseRecording, resumeRecording, flush, and dispose"
+---
+
+# Vue / Browser — Recording control
+
+Control session replay recording and event flushing.
+
+## start()
+
+Start session replay recording. Returns a Promise.
+
+**When to use:** Manually start recording if you didn't call it during initialization, or restart recording after stopping.
+
+```javascript
+await signal.start();
+```
+
+## stop()
+
+Stop session replay recording. Stops rrweb recorder, network capture, and console capture.
+
+**When to use:** Stop recording when the user navigates away or when you want to disable tracking temporarily.
+
+```javascript
+signal.stop();
+```
+
+## pauseRecording()
+
+Pause recording temporarily. Events are not captured while paused.
+
+**When to use:** Pause recording for sensitive operations (e.g. payment forms, password entry) without fully stopping.
+
+```javascript
+signal.pauseRecording();
+```
+
+## resumeRecording()
+
+Resume recording after pausing.
+
+**When to use:** Resume recording after a sensitive operation is complete.
+
+```javascript
+signal.resumeRecording();
+```
+
+## flush()
+
+Flush all queued events to the server immediately. Returns a Promise.
+
+**When to use:** Before page unload, before navigation, or when you need to ensure events are sent immediately.
+
+```javascript
+await signal.flush();
+```
+
+## dispose()
+
+Shutdown the SDK and clean up resources. Stops recording, flushes events, and removes event listeners. Returns a Promise.
+
+**When to use:** When the app is being destroyed or when you want to completely remove the SDK.
+
+```javascript
+await signal.dispose();
+```
+
+## Vue example
+
+```vue
+<script setup>
+import { onMounted, onUnmounted } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signal = null
+
+onMounted(async () => {
+  signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' })
+  await signal.start()
+})
+
+onUnmounted(async () => {
+  // Flush events before component unmounts
+  await signal?.flush()
+})
+
+function handleSensitiveAction() {
+  signal?.pauseRecording()
+  // ... perform sensitive operation
+  signal?.resumeRecording()
+}
+</script>
+```
+
+## Vanilla JS example
+
+```javascript
+const signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' });
+await signal.start();
+
+// Pause for sensitive operation
+signal.pauseRecording();
+// ... perform sensitive operation
+signal.resumeRecording();
+
+// Flush before page unload
+window.addEventListener('beforeunload', async () => {
+  await signal.flush();
+});
+
+// Dispose when app is destroyed
+window.addEventListener('unload', async () => {
+  await signal.dispose();
+});
+```
+
+## Example: Conditional recording
+
+```javascript
+const signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' });
+
+if (userConsent) {
+  await signal.start();
+} else {
+  // Don't start recording
+}
+
+// Later, if user consents
+function enableTracking() {
+  signal.start();
+}
+```
+
+## See also
+
+- [Initialization](/docs/integrations/vue/initialization) — createSignal() and start()
+- [Capture](/docs/integrations/vue/capture) — Track events

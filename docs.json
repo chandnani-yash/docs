@@ -22,32 +22,96 @@
       ]
     },
           {
-            "group": "Essentials",
+            "group": "Features",
             "pages": [
-              "essentials/configuration",
-              "essentials/privacy-masking",
-              "essentials/network-capture",
-              "essentials/console-capture",
-              "essentials/user-identification",
-              "essentials/event-tracking"
+              {
+                "group": "Tracking Features",
+                "pages": [
+                  "essentials/configuration",
+                  "essentials/privacy-masking",
+                  "essentials/event-tracking",
+                  "essentials/user-identification",
+                  "essentials/network-capture",
+                  "essentials/console-capture"
+                ]
+              },
+              "app/auto-tags",
+              "app/dashboards",
+              "app/chat",
+              "app/session-replays"
             ]
           },
           {
             "group": "Integrations",
             "pages": [
-              "integrations/react",
-              "integrations/nextjs",
-              "integrations/vue",
-              "integrations/server-integration"
-            ]
-          },
-          {
-            "group": "Signal App",
-            "pages": [
-              "app/auto-tags",
-              "app/dashboards",
-              "app/chat",
-              "app/session-replays"
+              {
+                "group": "React",
+                "pages": [
+                  "integrations/react/quickstart",
+                  "integrations/react/initialization",
+                  "integrations/react/capture",
+                  "integrations/react/identify",
+                  "integrations/react/set-person-properties",
+                  "integrations/react/group",
+                  "integrations/react/super-properties",
+                  "integrations/react/alias",
+                  "integrations/react/recording-control",
+                  "integrations/react/opt-out",
+                  "integrations/react/page-views",
+                  "integrations/react/configuration"
+                ]
+              },
+              {
+                "group": "Next.js",
+                "pages": [
+                  "integrations/nextjs/quickstart",
+                  "integrations/nextjs/initialization",
+                  "integrations/nextjs/capture",
+                  "integrations/nextjs/identify",
+                  "integrations/nextjs/set-person-properties",
+                  "integrations/nextjs/group",
+                  "integrations/nextjs/super-properties",
+                  "integrations/nextjs/alias",
+                  "integrations/nextjs/recording-control",
+                  "integrations/nextjs/opt-out",
+                  "integrations/nextjs/flush-shutdown",
+                  "integrations/nextjs/server-tracking",
+                  "integrations/nextjs/page-views",
+                  "integrations/nextjs/configuration"
+                ]
+              },
+              {
+                "group": "Vue / Browser",
+                "pages": [
+                  "integrations/vue/quickstart",
+                  "integrations/vue/initialization",
+                  "integrations/vue/capture",
+                  "integrations/vue/identify",
+                  "integrations/vue/set-person-properties",
+                  "integrations/vue/group",
+                  "integrations/vue/super-properties",
+                  "integrations/vue/alias",
+                  "integrations/vue/recording-control",
+                  "integrations/vue/opt-out",
+                  "integrations/vue/page-views",
+                  "integrations/vue/composable",
+                  "integrations/vue/configuration"
+                ]
+              },
+              {
+                "group": "Node",
+                "pages": [
+                  "integrations/node/quickstart",
+                  "integrations/node/initialization",
+                  "integrations/node/capture",
+                  "integrations/node/identify",
+                  "integrations/node/set-person-properties",
+                  "integrations/node/group",
+                  "integrations/node/alias",
+                  "integrations/node/flush-shutdown",
+                  "integrations/node/configuration"
+                ]
+              }
             ]
           }
         ]

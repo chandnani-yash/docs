@@ -1,0 +1,112 @@
+---
+title: "Group"
+description: "Associate users with groups (client and server)"
+---
+
+# Next.js — Group
+
+Associate users with groups (e.g. company, organization) and set group properties. Available on both client and server.
+
+## Client: useSignalGroup
+
+Use the same hook as the [React integration](/docs/integrations/react/group), re-exported from `@signal-js/nextjs/client`:
+
+```tsx
+'use client';
+
+import { useSignalGroup } from '@signal-js/nextjs/client';
+
+function CompanySwitcher({ companies }) {
+  const { group, getGroups } = useSignalGroup();
+
+  const handleSelectCompany = (companyId, companyName) => {
+    group('company', companyId, { name: companyName });
+  };
+
+  return (
+    <select onChange={(e) => {
+      const c = companies.find(c => c.id === e.target.value);
+      if (c) handleSelectCompany(c.id, c.name);
+    }}>
+      {companies.map((c) => (
+        <option key={c.id} value={c.id}>{c.name}</option>
+      ))}
+    </select>
+  );
+}
+```
+
+## Client: group(groupType, groupKey, properties?)
+
+Associate the current user with a group. Optionally set group properties.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `groupType` | `string` | yes | Type of group (e.g. `'company'`, `'organization'`) |
+| `groupKey` | `string` | yes | Unique identifier for the group |
+| `properties` | `Record<string, unknown>` | no | Group properties to set |
+
+## Client: getGroups()
+
+Get all groups the user is currently associated with. Returns an array of group objects.
+
+## Server: group(distinctId, groupType, groupKey, properties?, sessionId?, windowId?)
+
+Associate a user with a group from the server. Pass `sessionId` and `windowId` for client correlation.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `groupType` | `string` | yes | Type of group (e.g. `'company'`, `'organization'`) |
+| `groupKey` | `string` | yes | Unique identifier for the group |
+| `properties` | `Record<string, unknown>` | no | Group properties to set |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+```typescript
+// app/api/user/company/route.ts
+import { signal, getSessionInfo } from '@/lib/signal-server';
+import { NextRequest } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  const { sessionId, windowId, distinctId } = getSessionInfo(request);
+  const body = await request.json();
+
+  // Associate user with company
+  signal.group(
+    distinctId || body.userId,
+    'company',
+    body.companyId,
+    { role: 'admin' },
+    sessionId,
+    windowId
+  );
+
+  return Response.json({ success: true });
+}
+```
+
+## Server: groupIdentify(options, sessionId?, windowId?)
+
+Set or update group properties from the server. Pass `sessionId` and `windowId` for client correlation.
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `groupType` | `string` | yes | Type of group (e.g. `'company'`, `'organization'`) |
+| `groupKey` | `string` | yes | Group identifier |
+| `properties` | `Record<string, unknown>` | no | Group properties to set |
+
+```typescript
+// Update company properties
+signal.groupIdentify(
+  { groupType: 'company', groupKey: 'acme', properties: { plan: 'enterprise', seats: 50 } },
+  sessionId,
+  windowId
+);
+```
+
+## See also
+
+- [Identify](/docs/integrations/nextjs/identify) — identify()
+- [Capture](/docs/integrations/nextjs/capture) — capture()
+- [Server tracking](/docs/integrations/nextjs/server-tracking) — Server-side patterns

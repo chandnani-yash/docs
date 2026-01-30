@@ -1,0 +1,138 @@
+---
+title: "Configuration"
+description: "createSignal() options for Vue / Browser"
+---
+
+# Vue / Browser — Configuration
+
+`createSignal(options)` accepts the browser SDK options. Required: `endpoint`, `apiKey`, `projectId`. Same options apply in Vue, Vanilla JS, Svelte, Angular, or any framework.
+
+## Transport and batching
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `compression` | `boolean` | `true` | Gzip events before sending |
+| `flushInterval` | `number` | `2000` | Flush interval in ms |
+| `maxBatchSize` | `number` | `50` | Max events per batch before flush |
+| `getSignedUploadUrl` | `(sessionId: string) => Promise<string>` | — | Custom signed URL for uploads |
+
+## Features
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `enableSessionReplay` | `boolean` | `true` | Enable rrweb session replay |
+| `enableNetworkCapture` | `boolean` | `true` | Capture fetch/XHR in replay |
+| `enableConsoleCapture` | `boolean` | `true` | Capture console logs |
+| `enableSessionTracking` | `boolean` | `true` | Track page views, session start/end, performance (including `$pageleave` on unload/visibility change) |
+| `enablePerformanceTracking` | `boolean` | `true` | Track Web Vitals and performance metrics |
+| `enableBrowserDetection` | `boolean` | `true` | Run browser compatibility checks |
+| `debug` | `boolean` | `false` | Enable debug logging |
+
+## sessionRecordingMasking
+
+Session recording masking controls how sensitive content appears in replays. The recorder (rrweb) applies these rules when capturing the DOM: **blocked** elements are removed or replaced with a placeholder; **masked text** is replaced with asterisks (or a custom string); **ignored inputs** do not record value changes (only focus/blur). You can target elements by CSS class, CSS selector, or (for custom logic) a function.
+
+**How the options work**
+
+- **blockClass** / **blockSelector** — Elements matching the class or selector are **fully hidden** in the replay (replaced with a placeholder). Use for entire sections you don’t want visible (e.g. sidebar with PII, payment forms). Default class: `signal-no-capture`.
+- **maskTextClass** / **maskTextSelector** — Text content of matching elements is **replaced with asterisks** (`***`) in the replay. Use for sensitive text (names, emails, IDs) that you still want to show layout for. Default class: `signal-mask`.
+- **maskTextFn** — Optional `(text, element?) => string`. Called for each masked text node; return the string to show in the replay (e.g. `'[REDACTED]'` or partial mask). If you return the original text, it is not masked.
+- **ignoreClass** — Inputs/textarea with this class do **not** have their values recorded; only focus and interaction are. Use when you want to hide what the user typed but keep the fact they used the field. Default class: `signal-ignore-input`.
+- **maskAllInputs** — When `true`, **all** `<input>` and `<textarea>` values are masked in the replay (replaced with asterisks). When `false` (default), only inputs matching **maskInputOptions** or password type are masked.
+- **maskInputOptions** — Per–input-type control when `maskAllInputs` is `false`. Keys: `text`, `email`, `tel`, `textarea`, `number`, `search`, `url`, `password`, etc. Set to `true` to mask that type. Password is always masked.
+- **maskInputFn** — Optional `(text, element?) => string`. Called for each masked input value; return the string to show in the replay (e.g. last 4 digits only).
+
+**Example**
+
+```javascript
+createSignal({
+  endpoint: '...',
+  apiKey: '...',
+  projectId: '...',
+  sessionRecordingMasking: {
+    blockClass: 'signal-no-capture',
+    blockSelector: '[data-private]',
+    maskTextClass: 'signal-mask',
+    maskAllInputs: false,
+    maskInputOptions: { text: true, email: true, tel: true, textarea: true, password: true },
+  },
+});
+```
+
+In your markup: `class="signal-no-capture"` (hide), `class="signal-mask"` (mask text), `class="signal-ignore-input"` (ignore input values).
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `blockClass` | `string \| RegExp` | `'signal-no-capture'` | CSS class: elements fully hidden in replay |
+| `blockSelector` | `string \| null` | `null` | CSS selector for elements to block |
+| `ignoreClass` | `string \| RegExp` | `'signal-ignore-input'` | CSS class: input value changes not recorded |
+| `maskTextClass` | `string \| RegExp` | `'signal-mask'` | CSS class: text replaced with asterisks |
+| `maskTextSelector` | `string \| null` | `null` | CSS selector for text to mask |
+| `maskTextFn` | `(text, element?) => string \| null` | `null` | Custom function to transform masked text |
+| `maskAllInputs` | `boolean` | `false` | When `true`, mask all input/textarea values |
+| `maskInputOptions` | `object` | — | Per-type masking (text, email, tel, textarea, select, etc.) |
+| `maskInputFn` | `(text, element?) => string \| null` | `null` | Custom function to transform masked input values |
+
+## networkCaptureOptions
+
+Network capture records fetch and XHR requests so they appear in the session replay (URL, method, and optionally headers and body). These options control **what** is captured and **how** it is redacted.
+
+**How the options work**
+
+- **recordHeaders** — When `true`, request and response headers are included. Turn on only if needed; redact sensitive headers via `sensitiveHeaders`.
+- **recordBody** — When `true`, request and response bodies are captured (up to `payloadSizeLimitBytes`). Use with care for PII; use `maskRequestFn` or exclude sensitive URLs via `urlDenyList`.
+- **sensitiveHeaders** — Array of header names (case-insensitive) to **redact** in captured data (e.g. `authorization`, `cookie`, `x-api-key`). Their values are replaced with a placeholder.
+- **urlDenyList** — Array of URL strings or RegExp. Requests whose URL matches are **excluded** from capture. Use to skip health checks, analytics, or any URL that must not appear in replays.
+- **payloadSizeLimitBytes** — Max size (bytes) of request/response body to capture. Larger bodies are truncated. Default `1000000` (1 MB).
+- **maskRequestFn** — Optional `(request) => request \| null`. Return a modified request to redact fields, or return `null` to **drop** this request from capture (e.g. for sensitive endpoints).
+
+**Example**
+
+```javascript
+networkCaptureOptions: {
+  recordHeaders: true,
+  recordBody: true,
+  sensitiveHeaders: ['authorization', 'cookie', 'x-api-key', 'x-auth-token'],
+  urlDenyList: ['/api/health', /^https:\/\/analytics\.example\.com/],
+  payloadSizeLimitBytes: 500000,
+  maskRequestFn: (req) => (req.url?.includes('/api/payment') ? null : req),
+},
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `recordHeaders` | `boolean` | `false` | Include request/response headers |
+| `recordBody` | `boolean` | `false` | Include request/response body |
+| `sensitiveHeaders` | `string[]` | — | Header names to redact |
+| `urlDenyList` | `(string \| RegExp)[]` | — | URLs or patterns to exclude from capture |
+| `payloadSizeLimitBytes` | `number` | `1000000` | Max payload size to capture (1 MB) |
+| `maskRequestFn` | `(request) => request \| null` | — | Custom function to redact or drop requests |
+
+## consoleCaptureOptions
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `levels` | `('log' \| 'info' \| 'warn' \| 'error' \| 'debug')[]` | `['log','warn','error']` | Console levels to capture |
+| `captureErrors` | `boolean` | `true` | Capture uncaught errors |
+| `captureUnhandledRejections` | `boolean` | `true` | Capture unhandled promise rejections |
+| `stringLengthLimit` | `number` | `1000` | Max length of console log strings |
+| `maskSensitiveData` | `boolean` | `true` | Mask sensitive patterns in console output |
+
+## Session and advanced
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `sessionId` | `string` | — | Bootstrap a specific session ID |
+| `sessionIdleTimeoutSeconds` | `number` | `1800` | Session considered idle after this many seconds |
+| `maxSessionLengthSeconds` | `number` | `86400` | Max session length (24h) |
+| `addTracingHeaders` | `boolean \| string[]` | `true` | Add session/window headers to fetch/XHR; only needed for [Node](/docs/integrations/node) correlation |
+| `rrwebConfig` | `Record<string, unknown>` | — | Raw rrweb recorder options |
+| `requiredBrowserFeatures` | `('fetch' \| 'promises' \| ...)[]` | `['fetch','promises']` | Features required for compatibility check |
+| `debugPersistToLocalStorage` | `boolean` | `false` | Persist debug events to localStorage |
+| `debugLocalStorageKey` | `string` | `'signal_debug_events'` | Key for debug persistence |
+
+Page leave (`$pageleave`) is automatic when `enableSessionTracking` is `true`. There is no separate `capturePageleave` API.
+
+## See also
+
+- [Initialization](/docs/integrations/vue/initialization) — createSignal() and start()

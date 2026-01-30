@@ -1,0 +1,33 @@
+---
+title: "Flush and shutdown"
+description: "Flush queued events and graceful shutdown"
+---
+
+# Node — Flush and shutdown
+
+Flush queued events immediately with `flush()`, or stop the flush timer and flush with `shutdown()` before process exit. Both are async (return a Promise).
+
+## flush()
+
+Flush all queued events to the server immediately.
+
+```typescript
+await signal.flush();
+```
+
+Use when you need to ensure events are sent before a response or before the process exits (e.g. in a serverless function or after a critical path).
+
+## shutdown()
+
+Stop the flush timer and flush remaining events. Call before process exit for graceful shutdown.
+
+```typescript
+await signal.shutdown();
+```
+
+Use in cleanup handlers (e.g. `process.on('SIGTERM', ...)`) so no events are lost when the process exits.
+
+## See also
+
+- [Initialization](/docs/integrations/node/initialization) — One client per process
+- [Configuration](/docs/integrations/node/configuration) — flushBatchSize, flushInterval

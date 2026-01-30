@@ -1,0 +1,145 @@
+---
+title: "Configuration"
+description: "SignalNextProvider and createSignalServer options for Next.js"
+---
+
+# Next.js — Configuration
+
+Configure the client provider (`SignalNextProvider`) and the server client (`createSignalServer`). Client `options` are the same browser SDK options as in the [React configuration](/docs/integrations/react/configuration).
+
+## SignalNextProvider (client)
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `options` | `SignalOptions` | required | Browser SDK config. Required: `endpoint`, `apiKey`, `projectId`. See [React configuration](/docs/integrations/react/configuration) for full options. |
+| `trackPageViews` | `boolean` | `true` | Automatically track `$pageview` on route changes |
+| `trackSearchParams` | `boolean` | `false` | Include URL search params in page view events (requires Suspense boundary) |
+| `autoStart` | `boolean` | `true` | Start recording when the provider mounts |
+
+## createSignalServer (server)
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `endpoint` | `string` | required | API endpoint for sending events |
+| `apiKey` | `string` | required | API key for authentication |
+| `projectId` | `string` | `'default'` | Project ID |
+| `disabled` | `boolean` | `false` | When `true`, returns a no-op client |
+| `debug` | `boolean` | `false` | Enable debug logging |
+| `flushBatchSize` | `number` | `20` | Flush when this many events are queued |
+| `flushInterval` | `number` | `10000` | Flush interval in ms |
+| `timeout` | `number` | `30000` | Request timeout in ms |
+| `compression` | `boolean` | `true` | Enable gzip compression |
+| `fetch` | `typeof fetch` | `globalThis.fetch` | Custom fetch implementation |
+
+You must call `createSignalServer()` once (e.g. in `lib/signal-server.ts`) before using the server helpers below. The helpers use the same singleton client.
+
+## Server helpers
+
+These utilities are exported from `@signal-js/nextjs/server`. They work with the client created by `createSignalServer()`.
+
+### trackServerEvent(options)
+
+Fire a single event from an API route or Server Action without importing your shared `signal` client. Uses the singleton from `createSignalServer`; call `createSignalServer()` at least once (e.g. in `lib/signal-server.ts`) before using.
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `event` | `string` | yes | Event name |
+| `properties` | `Record<string, unknown>` | no | Event properties |
+
+**When to use:** One-off event tracking in API routes or Server Actions when you don't need to pass `sessionId`/`windowId` for correlation. For session correlation, use your shared `signal` client and [getSessionInfo](/docs/integrations/nextjs/server-tracking) instead.
+
+```typescript
+// app/api/checkout/route.ts or pages/api/checkout.ts
+import { trackServerEvent } from '@signal-js/nextjs/server';
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  // ... process checkout ...
+
+  await trackServerEvent({
+    distinctId: body.userId,
+    event: 'checkout_completed',
+    properties: { amount: body.amount, orderId: body.orderId },
+  });
+
+  return Response.json({ success: true });
+}
+```
+
+### getSignalServerSideProps(getServerSidePropsFunc, options?)
+
+Wrap your Pages Router `getServerSideProps` to inject Signal-related props (`distinctId`, `sessionId`) into the page. Your wrapper runs first; then Signal props are merged into the returned `props`.
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `getDistinctId` | `(context) => string \| undefined` | Return the user's distinct ID from the request (e.g. from cookies or session). |
+| `getSessionId` | `(context) => string \| undefined` | Optional. Return the session ID (e.g. from headers) for correlation. |
+
+**When to use:** Pages Router when you want Signal context (e.g. `distinctId`, `sessionId`) available as page props for client components or for tracking.
+
+```typescript
+// pages/dashboard.tsx
+import { getSignalServerSideProps } from '@signal-js/nextjs/server';
+
+export const getServerSideProps = getSignalServerSideProps(
+  async (context) => {
+    // Your existing data fetching
+    const data = await fetchDashboardData(context.req);
+    return { props: { data } };
+  },
+  {
+    getDistinctId: (context) => context.req.cookies.userId,
+    getSessionId: (context) => context.req.headers['x-signal-session-id'] as string | undefined,
+  }
+);
+
+export default function Dashboard({ data, distinctId, sessionId }) {
+  // distinctId and sessionId are now available
+  return <div>...</div>;
+}
+```
+
+### withSignalConfig(signalConfig)
+
+Wrap your Next.js config to inject Signal env vars for the client: `NEXT_PUBLIC_SIGNAL_ENDPOINT` and `NEXT_PUBLIC_SIGNAL_PROJECT_ID`. This is an alternative to setting them in `.env.local`.
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `endpoint` | `string` | API endpoint (set as `NEXT_PUBLIC_SIGNAL_ENDPOINT`) |
+| `apiKey` | `string` | API key (not exposed to client by this helper) |
+| `projectId` | `string` | Optional. Project ID (set as `NEXT_PUBLIC_SIGNAL_PROJECT_ID`) |
+| `disableSourceMaps` | `boolean` | Optional. Disable source maps upload |
+
+**When to use:** When you prefer to configure Signal in `next.config.js` instead of (or in addition to) `.env.local`.
+
+```javascript
+// next.config.js
+const { withSignalConfig } = require('@signal-js/nextjs/server');
+
+module.exports = withSignalConfig({
+  endpoint: process.env.SIGNAL_ENDPOINT,
+  apiKey: process.env.SIGNAL_API_KEY,
+  projectId: process.env.SIGNAL_PROJECT_ID,
+})({
+  // your existing Next.js config
+  reactStrictMode: true,
+});
+```
+
+The client will receive `process.env.NEXT_PUBLIC_SIGNAL_ENDPOINT` and `process.env.NEXT_PUBLIC_SIGNAL_PROJECT_ID` at build time. Keep `apiKey` and other secrets in server-only env (e.g. `SIGNAL_API_KEY` in `.env.local`).
+
+## Browser options (options prop)
+
+Client `options` are the same browser SDK options as in [React — Configuration](/docs/integrations/react/configuration). That page includes:
+
+- **Transport and batching** — `compression`, `flushInterval`, `maxBatchSize`, `getSignedUploadUrl`
+- **Features** — `enableSessionReplay`, `enableNetworkCapture`, `enableConsoleCapture`, `enableSessionTracking`, `enablePerformanceTracking`, `enableBrowserDetection`, `debug`
+- **sessionRecordingMasking** — How masking works: blockClass/blockSelector (hide elements), maskTextClass/maskTextSelector (replace text with ***), ignoreClass (don’t record input values), maskAllInputs vs maskInputOptions (per-type input masking), maskTextFn/maskInputFn (custom transforms). With examples and JSX usage.
+- **networkCaptureOptions** — How network capture works: recordHeaders/recordBody (what is captured), sensitiveHeaders (redact header values), urlDenyList (exclude URLs), payloadSizeLimitBytes (truncate large bodies), maskRequestFn (custom redaction or drop). With examples.
+- **consoleCaptureOptions** — `levels`, `captureErrors`, `captureUnhandledRejections`, `stringLengthLimit`, `maskSensitiveData`
+- **Session and advanced** — `sessionId`, `sessionIdleTimeoutSeconds`, `maxSessionLengthSeconds`, `addTracingHeaders` (for server correlation), `rrwebConfig`, `requiredBrowserFeatures`, `debugPersistToLocalStorage`, `debugLocalStorageKey`
+
+## See also
+
+- [Initialization](/docs/integrations/nextjs/initialization) — Client and server setup

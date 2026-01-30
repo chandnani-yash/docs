@@ -1,0 +1,99 @@
+---
+title: "Capture"
+description: "Track events in Next.js (client and server)"
+---
+
+# Next.js — Capture
+
+Track custom events from client components (using React hooks) and from the server (API routes, Server Actions). Pass `sessionId` and `windowId` from request headers on the server to correlate with the client session.
+
+## Client: useSignalCapture or useSignal
+
+In any client component, use the same hooks as the [React integration](/docs/integrations/react/capture):
+
+```tsx
+'use client';
+
+import { useSignalCapture } from '@signal-js/nextjs/client';
+
+export function CheckoutButton({ orderId, amount }) {
+  const capture = useSignalCapture();
+
+  return (
+    <button
+      onClick={() => {
+        capture('checkout_clicked', { orderId, amount });
+      }}
+    >
+      Checkout
+    </button>
+  );
+}
+```
+
+You can also use `useSignal()` for full SDK access. Both are re-exported from `@signal-js/nextjs/client`.
+
+## Server: API route (App Router)
+
+Import your server client and `getSessionInfo`, then call `signal.capture()` with the session identifiers from the request:
+
+```typescript
+// app/api/checkout/route.ts
+import { signal, getSessionInfo } from '@/lib/signal-server';
+import { NextRequest } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  const { sessionId, windowId, distinctId } = getSessionInfo(request);
+  const body = await request.json();
+
+  const orderId = await processOrder(body);
+
+  signal.capture({
+    distinctId: distinctId || body.userId,
+    event: 'order_processed',
+    properties: { orderId, amount: body.amount },
+    sessionId,
+    windowId,
+  });
+
+  return Response.json({ success: true, orderId });
+}
+```
+
+## Server: Server Action
+
+Read headers with `headers()` from `next/headers` and pass them into `signal.capture()`:
+
+```typescript
+// app/actions.ts
+'use server';
+
+import { signal, getSessionInfo } from '@/lib/signal-server';
+import { headers } from 'next/headers';
+
+export async function processOrderAction(orderData: OrderData) {
+  const headersList = headers();
+  const sessionId = headersList.get('x-signal-session-id') || undefined;
+  const windowId = headersList.get('x-signal-window-id') || undefined;
+  const distinctId = headersList.get('x-signal-distinct-id') || undefined;
+
+  const orderId = await processOrder(orderData);
+
+  signal.capture({
+    distinctId: distinctId || orderData.userId,
+    event: 'order_processed',
+    properties: { orderId, amount: orderData.amount },
+    sessionId,
+    windowId,
+  });
+
+  return { success: true, orderId };
+}
+```
+
+For Pages Router API routes and `getServerSideProps`, see [Server tracking](/docs/integrations/nextjs/server-tracking).
+
+## See also
+
+- [Identify](/docs/integrations/nextjs/identify) — User identity on client and server
+- [Server tracking](/docs/integrations/nextjs/server-tracking) — Pages Router and getSessionInfo patterns

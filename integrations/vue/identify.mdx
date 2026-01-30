@@ -1,0 +1,49 @@
+---
+title: "Identify"
+description: "Identify users with signal.identify()"
+---
+
+# Vue / Browser — Identify
+
+Associate events with a user by calling `signal.identify(distinctId, traits?)` after the user is known (e.g. after login). Use the same API in Vue, Vanilla JS, or any framework.
+
+## identify(distinctId, traits?)
+
+- **distinctId** (`string`) — Unique identifier for the user (e.g. database ID, email).
+- **traits** (`Record<string, unknown>` optional) — User properties (e.g. `email`, `name`, `plan`).
+
+Call `identify` after login. Subsequent events will be associated with this user. Call `signal.reset()` on logout to clear identity.
+
+## Vue example
+
+```vue
+<script setup>
+import { onMounted } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signal = null
+
+onMounted(async () => {
+  signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' })
+  await signal.start()
+})
+
+function identifyUser(userId, properties) {
+  signal?.identify(userId, properties)
+}
+
+function handleLogout() {
+  signal?.reset()
+}
+</script>
+
+<template>
+  <button @click="identifyUser('user_123', { email: 'j@example.com', name: 'Jane' })">Log in</button>
+  <button @click="handleLogout">Log out</button>
+</template>
+```
+
+## See also
+
+- [Capture](/docs/integrations/vue/capture) — Track events
+- [Composable](/docs/integrations/vue/composable) — Vue useSignal() composable

@@ -1,0 +1,57 @@
+---
+title: "Alias"
+description: "Link an alias to a user with signal.alias()"
+---
+
+# Node — Alias
+
+Link an alias (e.g. anonymous ID) to a user with `signal.alias()`. Use when merging anonymous and identified users (e.g. after login). Sends `$create_alias`.
+
+## alias(distinctId, alias, sessionId?, windowId?)
+
+Link an alias (e.g. anonymous ID) to a user. Sends `$create_alias` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `distinctId` | `string` | yes | Current user identifier (e.g. after login) |
+| `alias` | `string` | yes | Alias to link (e.g. previous anonymous ID) |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+**When to use:** After login to merge anonymous events (from before login) with the identified user. This ensures all events are associated with the same user profile.
+
+```typescript
+const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+signal.alias(
+  distinctId || userId,
+  anonymousId,
+  sessionId,
+  windowId
+);
+```
+
+## Example: Login flow
+
+```typescript
+// After user logs in
+const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+// Identify the user
+signal.identify({
+  distinctId: userId,
+  properties: { email: user.email, name: user.name },
+  sessionId,
+  windowId,
+});
+
+// Link anonymous ID if it exists
+if (anonymousId) {
+  signal.alias(userId, anonymousId, sessionId, windowId);
+}
+```
+
+## See also
+
+- [Identify](/docs/integrations/node/identify) — identify()
+- [Capture](/docs/integrations/node/capture) — capture()

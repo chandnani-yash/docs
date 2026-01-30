@@ -1,0 +1,81 @@
+---
+title: "Set person properties"
+description: "Update user properties with setPersonProperties and setPersonPropertiesOnce"
+---
+
+# React — Set person properties
+
+Update user properties without changing the distinct ID. Use `setPersonProperties` to overwrite properties or `setPersonPropertiesOnce` to set them only if not already set. Access these methods via `useSignal()`.
+
+## Accessing the methods
+
+Get `setPersonProperties` and `setPersonPropertiesOnce` from `useSignal()`:
+
+```tsx
+import { useSignal } from '@signal-js/react';
+
+function UserProfile({ user }) {
+  const { setPersonProperties, setPersonPropertiesOnce } = useSignal();
+
+  const handlePlanUpgrade = () => {
+    setPersonProperties({ plan: 'pro', role: 'admin' });
+  };
+
+  const handleSignup = () => {
+    // Only set if not already set (e.g. first-time signup)
+    setPersonPropertiesOnce({ signupSource: 'organic', firstPurchaseDate: new Date().toISOString() });
+  };
+
+  return (
+    <div>
+      <button onClick={handlePlanUpgrade}>Upgrade Plan</button>
+      <button onClick={handleSignup}>Complete Signup</button>
+    </div>
+  );
+}
+```
+
+## setPersonProperties(properties)
+
+Sets or updates user properties (overwrites existing). Sends a `$set` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | User properties to set or update |
+
+**When to use:** Update user properties after initial identification (e.g. plan changes, role updates, preference changes).
+
+```tsx
+const { setPersonProperties } = useSignal();
+
+// Update user plan
+setPersonProperties({ plan: 'enterprise', seats: 50 });
+```
+
+## setPersonPropertiesOnce(properties)
+
+Sets user properties only if they are not already set. Sends a `$set_once` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | User properties to set (only if not already set) |
+
+**When to use:** One-time attributes that shouldn't be overwritten (e.g. `signupSource`, `firstPurchaseDate`, `referralCode`).
+
+```tsx
+const { setPersonPropertiesOnce } = useSignal();
+
+// Set signup source only if not already set
+setPersonPropertiesOnce({ signupSource: 'organic' });
+```
+
+## Differences from identify()
+
+- **identify(distinctId, traits)** — Changes the user's distinct ID and sets properties. Use after login or when you know the user's identity.
+- **setPersonProperties(properties)** — Updates properties without changing the distinct ID. Use when properties change after identification.
+- **setPersonPropertiesOnce(properties)** — Sets properties only if not already set. Use for immutable attributes.
+
+## See also
+
+- [Identify](/docs/integrations/react/identify) — identify() and reset()
+- [Capture](/docs/integrations/react/capture) — Track events

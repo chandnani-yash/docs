@@ -1,0 +1,42 @@
+---
+title: "Quickstart"
+description: "Use @signal-js/node with Node.js or Express to track server events and correlate with client sessions"
+---
+
+# Node Integration
+
+Use **@signal-js/node** with **Node.js** or **Express** to track events on the server and correlate them with client-side sessions. Create one client with `createSignalNode()` and reuse it across requests. Pass `sessionId` and `windowId` from request headers to link server events to the same session replay.
+
+## Quick start
+
+1. **Install** — `npm install @signal-js/node`
+2. **Initialize** — Create a client with `createSignalNode({ endpoint, apiKey, projectId })` and a helper to read `x-signal-session-id`, `x-signal-window-id`, `x-signal-distinct-id` from requests. See [Initialization](/docs/integrations/node/initialization).
+3. **Track events** — Call `signal.capture()` with `sessionId` and `windowId` from the request. See [Capture](/docs/integrations/node/capture).
+
+## Sub-pages
+
+| Page | Description |
+|------|-------------|
+| [Initialization](/docs/integrations/node/initialization) | Install, Node.js setup, Express setup, getSessionInfo |
+| [Capture](/docs/integrations/node/capture) | Track events with signal.capture() |
+| [Identify](/docs/integrations/node/identify) | Identify users with signal.identify() |
+| [Set person properties](/docs/integrations/node/set-person-properties) | setPersonProperties, setPersonPropertiesOnce |
+| [Group](/docs/integrations/node/group) | groupIdentify, group — associate users with groups |
+| [Alias](/docs/integrations/node/alias) | Link alias to user with signal.alias() |
+| [Flush and shutdown](/docs/integrations/node/flush-shutdown) | flush(), shutdown() |
+| [Configuration](/docs/integrations/node/configuration) | createSignalNode options |
+
+## How it works
+
+1. **Client SDK** generates `sessionId` and `windowId` when initialized.
+2. **Tracing headers** (when `addTracingHeaders` is enabled on the client) add these to fetch/XHR: `X-Signal-Session-Id`, `X-Signal-Window-Id`, `X-Signal-Distinct-Id`.
+3. **Server** reads these headers and passes `sessionId` and `windowId` into `signal.capture()` (and other methods).
+4. **Result** — Client and server events share the same identifiers and appear together in session replay.
+
+## Best practices
+
+1. Extract headers — Read the tracing headers from every request when you want correlation.
+2. Fallback to user ID — Use `distinctId` from headers when present, otherwise your own user ID.
+3. Track key events — Call `signal.capture()` for important business events.
+4. One client per process — Create a single `createSignalNode()` instance and reuse it.
+5. Test correlation — Confirm client and server events appear in the same session in the dashboard.

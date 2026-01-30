@@ -1,0 +1,143 @@
+---
+title: "Server tracking"
+description: "Track events from API routes, Server Actions, and Pages Router"
+---
+
+# Next.js — Server tracking
+
+Track events from the server so they appear in the same session as client events. Use your shared `signal` client and pass `sessionId` and `windowId` from request headers into every `signal.capture()` or `signal.identify()` call.
+
+## App Router: API routes
+
+Use `getSessionInfo(request)` with the route’s `Request`:
+
+```typescript
+// app/api/checkout/route.ts
+import { signal, getSessionInfo } from '@/lib/signal-server';
+import { NextRequest } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  const { sessionId, windowId, distinctId } = getSessionInfo(request);
+  const body = await request.json();
+
+  const orderId = await processOrder(body);
+
+  signal.capture({
+    distinctId: distinctId || body.userId,
+    event: 'order_processed',
+    properties: { orderId, amount: body.amount },
+    sessionId,
+    windowId,
+  });
+
+  return Response.json({ success: true, orderId });
+}
+```
+
+## App Router: Server Actions
+
+Read headers with `headers()` from `next/headers` and pass the same identifiers:
+
+```typescript
+// app/actions.ts
+'use server';
+
+import { signal } from '@/lib/signal-server';
+import { headers } from 'next/headers';
+
+export async function processOrderAction(orderData: OrderData) {
+  const headersList = headers();
+  const sessionId = headersList.get('x-signal-session-id') || undefined;
+  const windowId = headersList.get('x-signal-window-id') || undefined;
+  const distinctId = headersList.get('x-signal-distinct-id') || undefined;
+
+  const orderId = await processOrder(orderData);
+
+  signal.capture({
+    distinctId: distinctId || orderData.userId,
+    event: 'order_processed',
+    properties: { orderId, amount: orderData.amount },
+    sessionId,
+    windowId,
+  });
+
+  return { success: true, orderId };
+}
+```
+
+## Pages Router: API routes
+
+Use `req.headers` and a small helper:
+
+```typescript
+// pages/api/orders.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+import { signal } from '@/lib/signal-server';
+
+function getSessionInfo(req: NextApiRequest) {
+  return {
+    sessionId: req.headers['x-signal-session-id'] as string | undefined,
+    windowId: req.headers['x-signal-window-id'] as string | undefined,
+    distinctId: req.headers['x-signal-distinct-id'] as string | undefined,
+  };
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+  const orderId = await processOrder(req.body);
+
+  signal.capture({
+    distinctId: distinctId || req.body.userId,
+    event: 'order_created',
+    properties: { orderId },
+    sessionId,
+    windowId,
+  });
+
+  res.json({ success: true, orderId });
+}
+```
+
+## Pages Router: getServerSideProps
+
+Read headers from `context.req` and pass them into `signal.capture()`:
+
+```typescript
+// pages/dashboard.tsx
+import { GetServerSideProps } from 'next';
+import { signal } from '@/lib/signal-server';
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const sessionId = context.req.headers['x-signal-session-id'] as string | undefined;
+  const windowId = context.req.headers['x-signal-window-id'] as string | undefined;
+  const distinctId = context.req.headers['x-signal-distinct-id'] as string | undefined;
+
+  signal.capture({
+    distinctId: distinctId || 'anonymous',
+    event: '$pageview',
+    properties: { path: context.resolvedUrl },
+    sessionId,
+    windowId,
+  });
+
+  return { props: {} };
+};
+```
+
+## Enabling tracing headers on the client
+
+For the server to receive `x-signal-session-id`, `x-signal-window-id`, and `x-signal-distinct-id`, the client must send them. Set `addTracingHeaders: true` (or an array of hostnames) in your `SignalNextProvider` `options` when you use server-side tracking. See [Configuration](/docs/integrations/nextjs/configuration).
+
+## Advanced server helpers
+
+The server package also exports:
+
+- **trackServerEvent(options)** — Convenience that uses the singleton from `createSignalServer` to capture one event (e.g. in a one-off handler). Options: `distinctId`, `event`, `properties`.
+- **getSignalServerSideProps(getServerSidePropsFunc, options)** — Wraps your `getServerSideProps` to inject Signal props (e.g. `distinctId`, `sessionId`) from `getDistinctId` / `getSessionId` callbacks. Use when you want Signal context in page props.
+- **withSignalConfig(nextConfig)** — Wraps your Next.js config to inject Signal env vars (`NEXT_PUBLIC_SIGNAL_ENDPOINT`, `NEXT_PUBLIC_SIGNAL_PROJECT_ID`). Use if you prefer config over `.env.local`.
+
+## See also
+
+- [Capture](/docs/integrations/nextjs/capture) — capture() options
+- [Initialization](/docs/integrations/nextjs/initialization) — lib/signal-server setup

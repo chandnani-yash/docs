@@ -1,0 +1,124 @@
+---
+title: "Quickstart"
+description: "Use Signal JS with React using hooks and components"
+---
+
+# React Integration
+
+Use Signal JS with React using the **@signal-js/react** package. It provides a provider, hooks, and components for session replay, event tracking, and user identity. The package includes the browser SDK automatically—you don't need to install `@signal-js/browser` separately.
+
+## Quick start
+
+**1. Install**
+
+```bash
+npm install @signal-js/react
+```
+
+**2. Wrap your app** with `SignalProvider` in your root (e.g. `main.tsx` or `App.tsx`). Pass `options` with your endpoint, API key, and project ID:
+
+```tsx
+import { SignalProvider } from '@signal-js/react';
+
+function App() {
+  return (
+    <SignalProvider
+      options={{
+        endpoint: 'https://your-api.com/api/signal/v1',
+        apiKey: 'your-api-key',
+        projectId: 'your-project-id',
+      }}
+    >
+      <YourApp />
+    </SignalProvider>
+  );
+}
+```
+
+**3. Track events** in any child component with `useSignalCapture()` or `useSignal()`:
+
+```tsx
+import { useSignalCapture } from '@signal-js/react';
+
+function MyButton() {
+  const capture = useSignalCapture();
+  return (
+    <button onClick={() => capture('button_clicked', { id: 'cta' })}>
+      Click me
+    </button>
+  );
+}
+```
+
+**4. Identify users** when they log in with `useSignalIdentify()`. See [Identify](/docs/integrations/react/identify) for details.
+
+Recording starts automatically when the provider mounts. For full setup (env vars, provider props), see [Initialization](/docs/integrations/react/initialization).
+
+## When to use React integration
+
+Use **@signal-js/react** when:
+- You're building a React application (Create React App, Vite, Next.js client components, etc.)
+- You want hooks-based API for better React integration
+- You prefer automatic session management via a provider
+- You want type-safe hooks with TypeScript
+
+For server-side tracking in Next.js, use [@signal-js/nextjs](/docs/integrations/nextjs) instead. For other frameworks (Vue, Svelte, Angular) or vanilla JavaScript, use [@signal-js/browser](/docs/integrations/vue).
+
+## Features
+
+- **Session replay** — rrweb-based session replay out of the box; configure masking via [Configuration](/docs/integrations/react/configuration).
+- **Event tracking** — Capture custom events with `useSignalCapture()` or `useSignal()`; events are batched and sent with session and identity context.
+- **User identity** — Identify users with `useSignalIdentify()`; supports `identify`, `distinctId`, and `reset` (e.g. on logout).
+- **User properties** — Update user properties with `setPersonProperties()` and `setPersonPropertiesOnce()` via `useSignal()`.
+- **Groups** — Associate users with groups (e.g. company, organization) via `useSignalGroup()`.
+- **Super properties** — Register properties included with every event using `register()`, `registerOnce()`, and `unregister()`.
+- **Alias** — Link aliases to users with `alias()` to merge anonymous and identified events.
+- **Page view tracking** — Track page views on mount with `usePageView()` or get a typed capture with `useTrackEvent()` for SPAs.
+- **Hooks-first API** — All SDK access via React hooks; no need to pass the SDK down or import it in every file.
+- **Session and recording controls** — Use `useSignal()` for `startRecording`, `stopRecording`, `pauseRecording`, `resumeRecording`, `flush`, and session info (`useSignalSession()`).
+- **Opt-out support** — Control user opt-out with `optOut()`, `optIn()`, and `hasOptedOut()`.
+- **Privacy masking** — Use CSS classes (`signal-no-capture`, `signal-mask`, `signal-ignore-input`) or [Configuration](/docs/integrations/react/configuration) options to mask sensitive UI in replays.
+- **Network capture** — Automatically capture fetch/XHR requests in session replays (configurable via [Configuration](/docs/integrations/react/configuration)).
+- **Console capture** — Capture console logs, errors, and unhandled promise rejections in session replays.
+
+## Sub-pages
+
+| Page | Description |
+|------|-------------|
+| [Initialization](/docs/integrations/react/initialization) | Install, Provider setup, provider props |
+| [Capture](/docs/integrations/react/capture) | Track custom events with useSignal, useSignalCapture |
+| [Identify](/docs/integrations/react/identify) | Identify users with useSignalIdentify |
+| [Set person properties](/docs/integrations/react/set-person-properties) | Update user properties with setPersonProperties, setPersonPropertiesOnce |
+| [Group](/docs/integrations/react/group) | Associate users with groups with useSignalGroup |
+| [Super properties](/docs/integrations/react/super-properties) | Register properties included with every event (register, registerOnce, unregister) |
+| [Alias](/docs/integrations/react/alias) | Link aliases to users with signal.alias() |
+| [Recording control](/docs/integrations/react/recording-control) | Control recording with startRecording, stopRecording, pauseRecording, resumeRecording, flush |
+| [Opt-out](/docs/integrations/react/opt-out) | Control user opt-out with optOut, optIn, hasOptedOut |
+| [Page views](/docs/integrations/react/page-views) | Track page views with usePageView, useTrackEvent |
+| [Configuration](/docs/integrations/react/configuration) | SignalProvider and browser SDK options |
+
+## Available hooks
+
+| Hook | Description |
+|------|-------------|
+| `useSignal()` | Full SDK access: capture, identify, setPersonProperties, setPersonPropertiesOnce, group, register, registerOnce, unregister, alias, reset, optOut, optIn, hasOptedOut, recording controls, flush |
+| `useSignalCapture()` | Memoized function to capture events |
+| `useSignalIdentify()` | `{ identify, distinctId, reset }` for user identity |
+| `useSignalGroup()` | `{ group, getGroups }` for group association |
+| `useSignalSession()` | Session info: sessionId, windowId, sessionDuration, isRecording |
+| `usePageView(pageName?, properties?)` | Track $pageview (or $pageview_&lt;name&gt;) on mount |
+| `useTrackEvent(eventName)` | Returns a typed capture function for that event |
+| `withSignal(Component)` | HOC that injects signal and isSignalInitialized |
+
+## Best practices
+
+1. **Wrap your app with `SignalProvider` at the root level** — Place `SignalProvider` in your root component (e.g. `main.tsx`, `App.tsx`, or `_app.tsx`).
+2. **Use hooks instead of importing the SDK directly** — Use hooks (`useSignal`, `useSignalCapture`, etc.) instead of importing the SDK directly in components for better React integration.
+3. **Use environment variables** — Store credentials (`endpoint`, `apiKey`, `projectId`) in environment variables (e.g. `.env.local` for Create React App, `.env` for Vite).
+4. **Track page views with `usePageView`** — Use `usePageView()` for automatic page view tracking on component mount in SPAs.
+5. **Identify users when they log in** — Call `identify()` from `useSignalIdentify()` when users log in to associate events with their identity.
+6. **Use sessionRecordingMasking for sensitive UI** — Add CSS classes (`signal-no-capture`, `signal-mask`, `signal-ignore-input`) or configure masking options in `SignalProvider` to protect sensitive data.
+7. **Use super properties for common attributes** — Register properties that apply to all events (e.g. app version, environment) with `register()` or `registerOnce()`.
+8. **Handle opt-out for privacy compliance** — Use `optOut()`, `optIn()`, and `hasOptedOut()` to respect user privacy preferences (e.g. GDPR compliance).
+9. **Flush events before navigation** — Call `flush()` from `useSignal()` before page unload or navigation to ensure events are sent.
+10. **Use `useSignalSession()` for session info** — Access session information (`sessionId`, `windowId`, `sessionDuration`, `isRecording`) for debugging or conditional logic.

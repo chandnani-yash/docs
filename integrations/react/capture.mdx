@@ -1,0 +1,75 @@
+---
+title: "Capture"
+description: "Track custom events in React with useSignal or useSignalCapture"
+---
+
+# React — Capture
+
+Track custom events from your React components using the Signal hooks. Use `useSignal()` for full SDK access or `useSignalCapture()` for a memoized capture function.
+
+## useSignal
+
+Get the full Signal SDK instance and call `capture` (or any other method):
+
+```tsx
+import { useSignal } from '@signal-js/react';
+
+function MyComponent() {
+  const signal = useSignal();
+
+  const handleClick = () => {
+    signal.capture('button_clicked', { buttonId: 'cta' });
+  };
+
+  return <button onClick={handleClick}>Click Me</button>;
+}
+```
+
+`useSignal()` returns: `signal`, `isInitialized`, `isRecording`, `sessionId`, `distinctId`, `capture`, `identify`, `setPersonProperties`, `setPersonPropertiesOnce`, `group`, `register`, `registerOnce`, `unregister`, `getSuperProperties`, `alias`, `reset`, `optOut`, `optIn`, `hasOptedOut`, `startRecording`, `stopRecording`, `pauseRecording`, `resumeRecording`, `flush`. See individual method pages for details.
+
+## useSignalCapture
+
+Get only a memoized capture function (useful when you only need to track events):
+
+```tsx
+import { useSignalCapture } from '@signal-js/react';
+
+function MyComponent() {
+  const capture = useSignalCapture();
+
+  const handleClick = () => {
+    capture('button_clicked', { buttonId: 'cta' });
+  };
+
+  return <button onClick={handleClick}>Click Me</button>;
+}
+```
+
+## capture(eventName, properties?)
+
+- **eventName** (`string`) — Event name (e.g. `'order_created'`, `'add_to_cart'`).
+- **properties** (`Record<string, unknown>` optional) — Arbitrary JSON-serializable properties.
+
+Both `signal.capture()` (from `useSignal()`) and the function returned by `useSignalCapture()` have the same signature. Events are sent in batches; identity and session context are attached automatically.
+
+## Example
+
+```tsx
+import { useSignalCapture } from '@signal-js/react';
+
+function CheckoutButton({ orderId, amount }) {
+  const capture = useSignalCapture();
+
+  const handleCheckout = () => {
+    capture('checkout_started', { orderId, amount });
+    // ... then run checkout logic
+  };
+
+  return <button onClick={handleCheckout}>Checkout</button>;
+}
+```
+
+## See also
+
+- [Identify](/docs/integrations/react/identify) — Set user identity
+- [Page views](/docs/integrations/react/page-views) — Track page views and useTrackEvent

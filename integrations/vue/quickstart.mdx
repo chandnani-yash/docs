@@ -1,0 +1,41 @@
+---
+title: "Quickstart"
+description: "Use @signal-js/browser with Vue, Vanilla JS, Svelte, Angular, or any JavaScript framework"
+---
+
+# Vue / Vanilla JS / Browser Integration
+
+Use **@signal-js/browser** with **Vue**, **Vanilla JS**, **Svelte**, **Angular**, or any JavaScript framework. The same `createSignal()` API runs in any browser environment. No framework-specific package is required.
+
+## Quick start
+
+1. **Install** — `npm install @signal-js/browser`
+2. **Initialize** — Call `createSignal({ endpoint, apiKey, projectId })` and then `await signal.start()`. See [Initialization](/docs/integrations/vue/initialization).
+3. **Track events** — Use `signal.capture(eventName, properties)`. See [Capture](/docs/integrations/vue/capture).
+4. **Identify users** — Use `signal.identify(distinctId, traits)`. See [Identify](/docs/integrations/vue/identify).
+
+## Sub-pages
+
+| Page | Description |
+|------|-------------|
+| [Initialization](/docs/integrations/vue/initialization) | Install, Vue setup, Vanilla JS, other frameworks |
+| [Capture](/docs/integrations/vue/capture) | Track custom events with signal.capture() |
+| [Identify](/docs/integrations/vue/identify) | Identify users with signal.identify() |
+| [Set person properties](/docs/integrations/vue/set-person-properties) | Update user properties with setPersonProperties, setPersonPropertiesOnce |
+| [Group](/docs/integrations/vue/group) | Associate users with groups with signal.group() |
+| [Super properties](/docs/integrations/vue/super-properties) | Register properties included with every event (register, registerOnce, unregister) |
+| [Alias](/docs/integrations/vue/alias) | Link aliases to users with signal.alias() |
+| [Recording control](/docs/integrations/vue/recording-control) | Control recording with start, stop, pauseRecording, resumeRecording, flush, dispose |
+| [Opt-out](/docs/integrations/vue/opt-out) | Control user opt-out with optOut, optIn, hasOptedOut |
+| [Page views](/docs/integrations/vue/page-views) | Track page views with Vue Router or manually |
+| [Composable](/docs/integrations/vue/composable) | Reusable useSignal() composable for Vue |
+| [Configuration](/docs/integrations/vue/configuration) | createSignal() options |
+
+## Best practices
+
+1. Initialize once — Create the Signal instance once at app entry.
+2. Use composables (Vue) — A `useSignal()` composable keeps the API in one place.
+3. Track route changes — Use Vue Router (or your framework’s router) to send `$pageview` on navigation when needed.
+4. Use addTracingHeaders only when needed — Enable only if you use [Node integration](/docs/integrations/node) and want server correlation.
+5. Use environment variables — Store endpoint, apiKey, projectId in `.env` (e.g. `VITE_*` for Vite).
+6. Use sessionRecordingMasking — Add `signal-no-capture`, `signal-mask`, or `signal-ignore-input` to sensitive UI.

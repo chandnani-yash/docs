@@ -1,0 +1,147 @@
+---
+title: "Recording control"
+description: "Control session replay recording with startRecording, stopRecording, pauseRecording, resumeRecording, and flush"
+---
+
+# React — Recording control
+
+Control session replay recording and event flushing. Access these methods via `useSignal()`.
+
+## Accessing the methods
+
+Get recording control methods from `useSignal()`:
+
+```tsx
+import { useSignal } from '@signal-js/react';
+
+function RecordingControls() {
+  const { 
+    startRecording, 
+    stopRecording, 
+    pauseRecording, 
+    resumeRecording, 
+    flush,
+    isRecording 
+  } = useSignal();
+
+  return (
+    <div>
+      <button onClick={startRecording}>Start</button>
+      <button onClick={stopRecording}>Stop</button>
+      <button onClick={pauseRecording}>Pause</button>
+      <button onClick={resumeRecording}>Resume</button>
+      <button onClick={flush}>Flush Events</button>
+      <p>Recording: {isRecording ? 'Yes' : 'No'}</p>
+    </div>
+  );
+}
+```
+
+## startRecording()
+
+Start session replay recording. Returns a Promise.
+
+**When to use:** Manually start recording if `autoStart` is `false` in `SignalProvider`, or restart recording after stopping.
+
+```tsx
+const { startRecording } = useSignal();
+
+const handleStart = async () => {
+  await startRecording();
+  console.log('Recording started');
+};
+```
+
+## stopRecording()
+
+Stop session replay recording. Stops rrweb recorder, network capture, and console capture.
+
+**When to use:** Stop recording when the user navigates away or when you want to disable tracking temporarily.
+
+```tsx
+const { stopRecording } = useSignal();
+
+const handleStop = () => {
+  stopRecording();
+  console.log('Recording stopped');
+};
+```
+
+## pauseRecording()
+
+Pause recording temporarily. Events are not captured while paused.
+
+**When to use:** Pause recording for sensitive operations (e.g. payment forms, password entry) without fully stopping.
+
+```tsx
+const { pauseRecording } = useSignal();
+
+const handleSensitiveAction = () => {
+  pauseRecording();
+  // ... perform sensitive operation
+};
+```
+
+## resumeRecording()
+
+Resume recording after pausing.
+
+**When to use:** Resume recording after a sensitive operation is complete.
+
+```tsx
+const { resumeRecording } = useSignal();
+
+const handleSensitiveActionComplete = () => {
+  resumeRecording();
+  // ... continue normal operation
+};
+```
+
+## flush()
+
+Flush all queued events to the server immediately. Returns a Promise.
+
+**When to use:** Before page unload, before navigation, or when you need to ensure events are sent immediately.
+
+```tsx
+const { flush } = useSignal();
+
+useEffect(() => {
+  const handleBeforeUnload = async () => {
+    await flush();
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+}, [flush]);
+```
+
+## Example: Conditional recording
+
+```tsx
+import { useSignal } from '@signal-js/react';
+import { useEffect } from 'react';
+
+function ConditionalRecording({ userConsent }) {
+  const { startRecording, stopRecording, isRecording } = useSignal();
+
+  useEffect(() => {
+    if (userConsent) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  }, [userConsent, startRecording, stopRecording]);
+
+  return (
+    <div>
+      {isRecording ? 'Recording active' : 'Recording paused'}
+    </div>
+  );
+}
+```
+
+## See also
+
+- [Initialization](/docs/integrations/react/initialization) — SignalProvider and autoStart
+- [Capture](/docs/integrations/react/capture) — Track events

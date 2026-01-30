@@ -1,0 +1,41 @@
+---
+title: "Capture"
+description: "Track events with signal.capture()"
+---
+
+# Node — Capture
+
+Track events from the server with `signal.capture(options)`. Pass `sessionId` and `windowId` from request headers to correlate with the client session.
+
+## capture(options)
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `event` | `string` | yes | Event name |
+| `properties` | `Record<string, JsonType>` | no | Event properties |
+| `timestamp` | `Date` | no | When the event occurred (default: now) |
+| `groups` | `Record<string, string>` | no | Groups the user belongs to (e.g. `{ company: 'acme' }`) |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+## Example
+
+```typescript
+const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+signal.capture({
+  distinctId: distinctId || userId,
+  event: 'order_created',
+  properties: { orderId, amount },
+  sessionId,
+  windowId,
+});
+```
+
+Events are queued and sent in batches. All methods are synchronous except [flush](/docs/integrations/node/flush-shutdown) and [shutdown](/docs/integrations/node/flush-shutdown).
+
+## See also
+
+- [Identify](/docs/integrations/node/identify) — Identify users
+- [Initialization](/docs/integrations/node/initialization) — getSessionInfo pattern

@@ -1,0 +1,61 @@
+---
+title: "Set person properties"
+description: "Set user properties with setPersonProperties and setPersonPropertiesOnce"
+---
+
+# Node — Set person properties
+
+Set or update user properties from the server with `setPersonProperties` (overwrites) or `setPersonPropertiesOnce` (only if not already set). Pass `sessionId` and `windowId` when correlating with the client session.
+
+## setPersonProperties(distinctId, properties, sessionId?, windowId?)
+
+Sets user properties (overwrites). Sends `$set` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `properties` | `UserTraits` | yes | User properties to set or update |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+**When to use:** Update user properties without sending an `$identify` event (e.g. when properties change after initial identification).
+
+```typescript
+const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+signal.setPersonProperties(
+  distinctId || userId,
+  { plan: 'pro', role: 'admin' },
+  sessionId,
+  windowId
+);
+```
+
+## setPersonPropertiesOnce(distinctId, properties, sessionId?, windowId?)
+
+Sets user properties only if not already set. Sends `$set_once` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `properties` | `UserTraits` | yes | User properties to set (only if not already set) |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+**When to use:** One-time attributes that shouldn't be overwritten (e.g. `signupSource`, `firstPurchaseDate`).
+
+```typescript
+const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+signal.setPersonPropertiesOnce(
+  distinctId || userId,
+  { signupSource: 'organic' },
+  sessionId,
+  windowId
+);
+```
+
+## See also
+
+- [Identify](/docs/integrations/node/identify) — identify()
+- [Capture](/docs/integrations/node/capture) — capture()

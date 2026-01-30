@@ -1,0 +1,104 @@
+---
+title: "Opt-out"
+description: "Control user opt-out with optOut, optIn, and hasOptedOut"
+---
+
+# Vue / Browser — Opt-out
+
+Allow users to opt out of tracking. When opted out, no events are captured.
+
+## optOut()
+
+Disable tracking for the current user. No events will be captured while opted out. The opt-out preference is persisted in localStorage.
+
+**When to use:** When the user requests to disable tracking (e.g. privacy settings, GDPR compliance).
+
+## optIn()
+
+Re-enable tracking for the current user. Events will be captured again.
+
+**When to use:** When the user requests to re-enable tracking.
+
+## hasOptedOut()
+
+Check if the user has opted out. Returns `boolean`.
+
+**When to use:** To conditionally show UI or check tracking status.
+
+## Vue example
+
+```vue
+<script setup>
+import { onMounted, ref } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signal = null
+const optedOut = ref(false)
+
+onMounted(async () => {
+  signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' })
+  await signal.start()
+  
+  optedOut.value = signal.hasOptedOut()
+})
+
+function toggleTracking() {
+  if (optedOut.value) {
+    signal?.optIn()
+    optedOut.value = false
+  } else {
+    signal?.optOut()
+    optedOut.value = true
+  }
+}
+</script>
+
+<template>
+  <div>
+    <label>
+      <input
+        type="checkbox"
+        :checked="!optedOut"
+        @change="toggleTracking"
+      />
+      Enable analytics tracking
+    </label>
+    <p>
+      {{ optedOut
+        ? 'Tracking is disabled. No events will be captured.'
+        : 'Tracking is enabled. Events are being captured.' }}
+    </p>
+  </div>
+</template>
+```
+
+## Vanilla JS example
+
+```javascript
+const signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' });
+await signal.start();
+
+// Check if opted out
+const isOptedOut = signal.hasOptedOut();
+
+if (isOptedOut) {
+  console.log('User has opted out of tracking');
+} else {
+  // User has not opted out, tracking is active
+}
+
+// Opt out
+signal.optOut();
+
+// Later, opt back in
+signal.optIn();
+```
+
+## Persistence
+
+The opt-out preference is stored in localStorage with the key `signal_opt_out`. It persists across page reloads and browser sessions.
+
+## See also
+
+- [Identify](/docs/integrations/vue/identify) — Set user identity
+- [Capture](/docs/integrations/vue/capture) — Track events

@@ -1,0 +1,50 @@
+---
+title: "Group"
+description: "Associate users with groups in React with useSignalGroup"
+---
+
+# React — Group
+
+Associate the current user with a group (e.g. company, organization) and optionally set group properties. Use `useSignalGroup()` to get `group` and `getGroups`.
+
+## useSignalGroup
+
+```tsx
+import { useSignalGroup } from '@signal-js/react';
+
+function CompanySwitcher({ companies }) {
+  const { group, getGroups } = useSignalGroup();
+
+  const handleSelectCompany = (companyId, companyName) => {
+    group('company', companyId, { name: companyName });
+  };
+
+  return (
+    <select onChange={(e) => {
+      const c = companies.find(c => c.id === e.target.value);
+      if (c) handleSelectCompany(c.id, c.name);
+    }}>
+      {companies.map((c) => (
+        <option key={c.id} value={c.id}>{c.name}</option>
+      ))}
+    </select>
+  );
+}
+```
+
+## group(groupType, groupKey, properties?)
+
+- **groupType** (`string`) — Type of group (e.g. `'company'`, `'organization'`).
+- **groupKey** (`string`) — Unique identifier for the group.
+- **properties** (`Record<string, unknown>` optional) — Group properties to set.
+
+Calling `group()` sends a group association event and can set or update group properties. Subsequent events may include this group context for analytics.
+
+## getGroups
+
+`getGroups()` returns the list of groups the user is currently associated with (from the SDK state). Useful for debugging or conditional UI.
+
+## See also
+
+- [Identify](/docs/integrations/react/identify) — Set user identity
+- [Capture](/docs/integrations/react/capture) — Track events

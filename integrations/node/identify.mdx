@@ -1,0 +1,35 @@
+---
+title: "Identify"
+description: "Identify users with signal.identify()"
+---
+
+# Node — Identify
+
+Identify a user and set their properties with `signal.identify(options)`. Sends an `$identify` event. Pass `sessionId` and `windowId` from request headers when you want to correlate with the client session.
+
+## identify(options)
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `properties` | `UserTraits` | no | User properties to set |
+| `sessionId` | `string` | no | From header for client correlation |
+| `windowId` | `string` | no | From header for client correlation |
+
+## Example
+
+```typescript
+const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+signal.identify({
+  distinctId: 'user_123',
+  properties: { email: 'user@example.com', name: 'Jane' },
+  sessionId,
+  windowId,
+});
+```
+
+## See also
+
+- [Set person properties](/docs/integrations/node/set-person-properties) — setPersonProperties, setPersonPropertiesOnce
+- [Capture](/docs/integrations/node/capture) — Track events

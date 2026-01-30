@@ -1,0 +1,79 @@
+---
+title: "Group"
+description: "Associate users with groups with signal.group()"
+---
+
+# Vue / Browser — Group
+
+Associate the current user with a group (e.g. company, organization) and optionally set group properties. Use `signal.group()` to associate a user with a group and `signal.getGroups()` to get all groups the user belongs to.
+
+## group(groupType, groupKey, properties?)
+
+Associate the current user with a group. Optionally set group properties.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `groupType` | `string` | yes | Type of group (e.g. `'company'`, `'organization'`) |
+| `groupKey` | `string` | yes | Unique identifier for the group |
+| `properties` | `Record<string, unknown>` | no | Group properties to set |
+
+**When to use:** When a user joins or is associated with a group (e.g. company, team, organization).
+
+## getGroups()
+
+Get all groups the user is currently associated with. Returns an array of group objects.
+
+**When to use:** To check which groups a user belongs to, for conditional UI, or debugging.
+
+## Vue example
+
+```vue
+<script setup>
+import { onMounted } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signal = null
+
+onMounted(async () => {
+  signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' })
+  await signal.start()
+})
+
+function associateWithCompany(companyId, companyName) {
+  signal?.group('company', companyId, { name: companyName })
+}
+
+function getCurrentGroups() {
+  const groups = signal?.getGroups()
+  console.log('User groups:', groups)
+}
+</script>
+
+<template>
+  <div>
+    <button @click="associateWithCompany('acme', 'Acme Corp')">
+      Join Company
+    </button>
+    <button @click="getCurrentGroups()">Show Groups</button>
+  </div>
+</template>
+```
+
+## Vanilla JS example
+
+```javascript
+const signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' });
+await signal.start();
+
+// Associate user with company
+signal.group('company', 'acme', { name: 'Acme Corp', plan: 'enterprise' });
+
+// Get all groups
+const groups = signal.getGroups();
+console.log('User groups:', groups);
+```
+
+## See also
+
+- [Identify](/docs/integrations/vue/identify) — Set user identity
+- [Capture](/docs/integrations/vue/capture) — Track events

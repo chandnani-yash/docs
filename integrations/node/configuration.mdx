@@ -1,0 +1,178 @@
+---
+title: "Configuration"
+description: "createSignalNode options for Node"
+---
+
+# Node — Configuration
+
+Configure the Node client with `createSignalNode(options)`. Required: `endpoint`, `apiKey`.
+
+## createSignalNode options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `endpoint` | `string` | required | API endpoint for sending events |
+| `apiKey` | `string` | required | API key for authentication |
+| `projectId` | `string` | `'default'` | Project ID |
+| `debug` | `boolean` | `false` | Enable debug logging |
+| `flushBatchSize` | `number` | `20` | Flush when this many events are queued |
+| `flushInterval` | `number` | `10000` | Flush interval in ms |
+| `timeout` | `number` | `30000` | Request timeout in ms |
+| `compression` | `boolean` | `true` | Enable gzip compression |
+| `personalApiKey` | `string` | `''` | Personal API key (e.g. for feature flags) |
+| `fetch` | `typeof fetch` | `globalThis.fetch` | Custom fetch implementation |
+
+## Available methods
+
+After creating a client with `createSignalNode()`, you can call these methods on the instance. All methods are synchronous (return immediately) except `flush()` and `shutdown()` which are async.
+
+### capture(options)
+
+Track custom events from the server. Pass `sessionId` and `windowId` from request headers to correlate with client sessions.
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `event` | `string` | yes | Event name |
+| `properties` | `Record<string, JsonType>` | no | Event properties |
+| `timestamp` | `Date` | no | When the event occurred (default: now) |
+| `groups` | `Record<string, string>` | no | Groups the user belongs to (e.g. `{ company: 'acme' }`) |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+**When to use:** Track any business event (e.g. `order_created`, `payment_processed`, `user_action`). Events are queued and sent in batches.
+
+```typescript
+const { sessionId, windowId, distinctId } = getSessionInfo(req);
+
+signal.capture({
+  distinctId: distinctId || userId,
+  event: 'order_created',
+  properties: { orderId, amount },
+  sessionId,
+  windowId,
+});
+```
+
+See [Capture](/docs/integrations/node/capture) for details.
+
+### identify(options)
+
+Identify a user and set their properties. Sends an `$identify` event.
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `properties` | `UserTraits` | no | User properties to set (e.g. `email`, `name`, `plan`) |
+| `sessionId` | `string` | no | From header for client correlation |
+| `windowId` | `string` | no | From header for client correlation |
+
+**When to use:** After login or when you know the user's identity. Subsequent events will be associated with this user.
+
+```typescript
+signal.identify({
+  distinctId: 'user_123',
+  properties: { email: 'user@example.com', name: 'Jane' },
+  sessionId,
+  windowId,
+});
+```
+
+See [Identify](/docs/integrations/node/identify) for details.
+
+### setPersonProperties(distinctId, properties, sessionId?, windowId?)
+
+Set or update user properties (overwrites existing). Sends `$set` event.
+
+**When to use:** Update user properties without sending an `$identify` event (e.g. when properties change after initial identification).
+
+```typescript
+signal.setPersonProperties('user_123', { plan: 'pro', role: 'admin' }, sessionId, windowId);
+```
+
+### setPersonPropertiesOnce(distinctId, properties, sessionId?, windowId?)
+
+Set user properties only if not already set. Sends `$set_once` event.
+
+**When to use:** One-time attributes that shouldn't be overwritten (e.g. `signupSource`, `firstPurchaseDate`).
+
+```typescript
+signal.setPersonPropertiesOnce('user_123', { signupSource: 'organic' }, sessionId, windowId);
+```
+
+See [Set person properties](/docs/integrations/node/set-person-properties) for details.
+
+### group(distinctId, groupType, groupKey, properties?, sessionId?, windowId?)
+
+Associate a user with a group (e.g. company, organization). Sends `$group_assign` event. If `properties` are provided, also calls `groupIdentify()` to set group properties.
+
+**When to use:** When a user joins or is associated with a group (e.g. company, team, organization).
+
+```typescript
+signal.group('user_123', 'company', 'acme', { role: 'admin' }, sessionId, windowId);
+```
+
+### groupIdentify(options, sessionId?, windowId?)
+
+Set or update group properties. Sends `$groupidentify` event.
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `groupType` | `string` | yes | e.g. `'company'`, `'organization'` |
+| `groupKey` | `string` | yes | Group identifier |
+| `properties` | `Record<string, JsonType>` | no | Group properties to set |
+
+**When to use:** Update group-level attributes (e.g. company plan, team size) without associating a user.
+
+```typescript
+signal.groupIdentify(
+  { groupType: 'company', groupKey: 'acme', properties: { plan: 'enterprise', seats: 50 } },
+  sessionId,
+  windowId
+);
+```
+
+See [Group](/docs/integrations/node/group) for details.
+
+### alias(distinctId, alias, sessionId?, windowId?)
+
+Link an alias (e.g. anonymous ID) to a user. Sends `$create_alias` event.
+
+**When to use:** After login to merge anonymous events (from before login) with the identified user.
+
+```typescript
+signal.alias('user_123', 'anonymous_abc', sessionId, windowId);
+```
+
+See [Alias](/docs/integrations/node/alias) for details.
+
+### flush()
+
+Flush all queued events to the server immediately. Returns a Promise.
+
+**When to use:** Before a response in serverless functions, after critical paths, or when you need to ensure events are sent immediately.
+
+```typescript
+await signal.flush();
+```
+
+### shutdown()
+
+Stop the flush timer and flush remaining events. Returns a Promise. Call before process exit for graceful shutdown.
+
+**When to use:** In cleanup handlers (e.g. `process.on('SIGTERM', ...)`) to ensure no events are lost when the process exits.
+
+```typescript
+await signal.shutdown();
+```
+
+See [Flush and shutdown](/docs/integrations/node/flush-shutdown) for details.
+
+## Client-side: tracing headers
+
+For session correlation, the **client** must send tracing headers. Use **@signal-js/browser** (or React/Next.js/Vue) and set `addTracingHeaders: true` (or an array of hostnames). See [Vue](/docs/integrations/vue/configuration) or [React](/docs/integrations/react/configuration) for client options.
+
+## See also
+
+- [Initialization](/docs/integrations/node/initialization) — Setup
+- [Flush and shutdown](/docs/integrations/node/flush-shutdown) — flush(), shutdown()

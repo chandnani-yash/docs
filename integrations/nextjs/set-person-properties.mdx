@@ -1,0 +1,123 @@
+---
+title: "Set person properties"
+description: "Update user properties with setPersonProperties and setPersonPropertiesOnce (client and server)"
+---
+
+# Next.js — Set person properties
+
+Update user properties without changing the distinct ID. Use `setPersonProperties` to overwrite properties or `setPersonPropertiesOnce` to set them only if not already set. Available on both client and server.
+
+## Client: useSignal
+
+Get `setPersonProperties` and `setPersonPropertiesOnce` from `useSignal()`:
+
+```tsx
+'use client';
+
+import { useSignal } from '@signal-js/nextjs/client';
+
+function UserProfile({ user }) {
+  const { setPersonProperties, setPersonPropertiesOnce } = useSignal();
+
+  const handlePlanUpgrade = () => {
+    setPersonProperties({ plan: 'pro', role: 'admin' });
+  };
+
+  const handleSignup = () => {
+    // Only set if not already set
+    setPersonPropertiesOnce({ signupSource: 'organic' });
+  };
+
+  return (
+    <div>
+      <button onClick={handlePlanUpgrade}>Upgrade Plan</button>
+      <button onClick={handleSignup}>Complete Signup</button>
+    </div>
+  );
+}
+```
+
+## Client: setPersonProperties(properties)
+
+Sets or updates user properties (overwrites existing). Sends a `$set` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | User properties to set or update |
+
+**When to use:** Update user properties after initial identification (e.g. plan changes, role updates).
+
+## Client: setPersonPropertiesOnce(properties)
+
+Sets user properties only if they are not already set. Sends a `$set_once` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | User properties to set (only if not already set) |
+
+**When to use:** One-time attributes that shouldn't be overwritten (e.g. `signupSource`, `firstPurchaseDate`).
+
+## Server: setPersonProperties(distinctId, properties, sessionId?, windowId?)
+
+Sets or updates user properties from the server. Pass `sessionId` and `windowId` for client correlation.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `properties` | `Record<string, unknown>` | yes | User properties to set or update |
+| `sessionId` | `string` | no | From `x-signal-session-id` header for client correlation |
+| `windowId` | `string` | no | From `x-signal-window-id` header for client correlation |
+
+```typescript
+// app/api/user/route.ts
+import { signal, getSessionInfo } from '@/lib/signal-server';
+import { NextRequest } from 'next/server';
+
+export async function PATCH(request: NextRequest) {
+  const { sessionId, windowId, distinctId } = getSessionInfo(request);
+  const body = await request.json();
+
+  // Update user plan
+  signal.setPersonProperties(
+    distinctId || body.userId,
+    { plan: 'enterprise', seats: 50 },
+    sessionId,
+    windowId
+  );
+
+  return Response.json({ success: true });
+}
+```
+
+## Server: setPersonPropertiesOnce(distinctId, properties, sessionId?, windowId?)
+
+Sets user properties only if not already set. Pass `sessionId` and `windowId` for client correlation.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `distinctId` | `string` | yes | User identifier |
+| `properties` | `Record<string, unknown>` | yes | User properties to set (only if not already set) |
+| `sessionId` | `string` | no | From header for client correlation |
+| `windowId` | `string` | no | From header for client correlation |
+
+```typescript
+// Set signup source only if not already set
+signal.setPersonPropertiesOnce(
+  userId,
+  { signupSource: 'organic' },
+  sessionId,
+  windowId
+);
+```
+
+## Differences from identify()
+
+- **identify(distinctId, traits)** — Changes the user's distinct ID and sets properties. Use after login.
+- **setPersonProperties(properties)** — Updates properties without changing the distinct ID. Use when properties change after identification.
+- **setPersonPropertiesOnce(properties)** — Sets properties only if not already set. Use for immutable attributes.
+
+## See also
+
+- [Identify](/docs/integrations/nextjs/identify) — identify() and reset()
+- [Capture](/docs/integrations/nextjs/capture) — Track events
+- [Server tracking](/docs/integrations/nextjs/server-tracking) — Server-side patterns

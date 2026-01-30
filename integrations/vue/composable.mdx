@@ -1,0 +1,72 @@
+---
+title: "Composable (Vue)"
+description: "Reusable useSignal() composable for Vue"
+---
+
+# Vue / Browser — Composable
+
+Create a Vue composable so components can share the same Signal instance and get typed helpers for `identify`, `capture`, and optional `capturePageview`.
+
+## useSignal composable
+
+```typescript
+// composables/useSignal.ts
+import { ref, onMounted } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signalInstance = null
+
+export function useSignal() {
+  const isReady = ref(false)
+  
+  onMounted(async () => {
+    if (!signalInstance) {
+      signalInstance = createSignal({
+        endpoint: import.meta.env.VITE_SIGNAL_ENDPOINT,
+        apiKey: import.meta.env.VITE_SIGNAL_API_KEY,
+        projectId: import.meta.env.VITE_SIGNAL_PROJECT_ID,
+      })
+      await signalInstance.start()
+      isReady.value = true
+    }
+  })
+  
+  return {
+    signal: signalInstance,
+    isReady,
+    identify: (userId, properties) => signalInstance?.identify(userId, properties),
+    capture: (eventName, properties) => signalInstance?.capture(eventName, properties),
+    capturePageview: (options) => signalInstance?.capture('$pageview', {
+      $pathname: options?.path,
+      $title: options?.title,
+      ...options,
+    }),
+  }
+}
+```
+
+## Usage in components
+
+```vue
+<script setup>
+import { useSignal } from '@/composables/useSignal'
+
+const { identify, capture } = useSignal()
+
+function handleLogin(user) {
+  identify(user.id, { email: user.email })
+}
+
+function handleButtonClick() {
+  capture('button_clicked', { buttonId: 'cta' })
+}
+</script>
+```
+
+Use `isReady` if you need to wait for the SDK before showing tracking-dependent UI. `capturePageview` is a convenience that calls `capture('$pageview', { ... })` with path/title.
+
+## See also
+
+- [Initialization](/docs/integrations/vue/initialization) — createSignal() setup
+- [Capture](/docs/integrations/vue/capture) — capture()
+- [Identify](/docs/integrations/vue/identify) — identify()

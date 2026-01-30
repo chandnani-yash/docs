@@ -30,11 +30,11 @@ Use CSS classes or data attributes to control what gets recorded:
 
 ## Input Field Masking
 
-By default, all input values are masked. Configure per input type:
+By default, input values are not masked (except passwords). Set `maskAllInputs: true` to mask all inputs, or configure per input type:
 
 ```typescript
 sessionRecordingMasking: {
-  maskAllInputs: true,  // Master switch
+  maskAllInputs: true,  // Set to true to mask all inputs (default: false)
   maskInputOptions: {
     password: true,     // Always masked
     email: true,        // Masked by default
@@ -141,7 +141,7 @@ networkCaptureOptions: {
 
 1. **Use CSS classes** for static elements that should always be masked
 2. **Use data attributes** for dynamic content or when CSS classes aren't feasible
-3. **Enable automatic masking** for inputs by default (`maskAllInputs: true`)
+3. **Enable automatic masking** for inputs by setting `maskAllInputs: true` (default is `false`)
 4. **Configure sensitive headers** to always redact authentication tokens
 5. **Use custom masking functions** for complex scenarios
 6. **Test your masking** to ensure sensitive data is properly protected

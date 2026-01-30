@@ -1,0 +1,81 @@
+---
+title: "Initialization"
+description: "Install and set up @signal-js/node with Node.js or Express"
+---
+
+# Node — Initialization
+
+Install **@signal-js/node** and create one client with `createSignalNode()`. Use it in plain Node.js `http`/`https` servers or in Express. Reuse the same client across all requests.
+
+## Installation
+
+```bash
+npm install @signal-js/node
+```
+
+## Using with Node.js
+
+Create the client at startup and a helper to read tracing headers from `http.IncomingMessage`:
+
+```typescript
+import http from 'http';
+import { createSignalNode } from '@signal-js/node';
+
+const signal = createSignalNode({
+  endpoint: process.env.SIGNAL_ENDPOINT!,
+  apiKey: process.env.SIGNAL_API_KEY!,
+  projectId: process.env.SIGNAL_PROJECT_ID!,
+});
+
+function getSessionInfo(req: http.IncomingMessage) {
+  const headers = req.headers;
+  return {
+    sessionId: headers['x-signal-session-id'] as string | undefined,
+    windowId: headers['x-signal-window-id'] as string | undefined,
+    distinctId: headers['x-signal-distinct-id'] as string | undefined,
+  };
+}
+
+const server = http.createServer(async (req, res) => {
+  const { sessionId, windowId, distinctId } = getSessionInfo(req);
+  // Use signal.capture(), signal.identify(), etc. with sessionId, windowId, distinctId
+});
+
+server.listen(3000);
+```
+
+## Using with Express
+
+Same client; read headers from `req.headers`:
+
+```typescript
+import express from 'express';
+import { createSignalNode } from '@signal-js/node';
+
+const app = express();
+app.use(express.json());
+
+const signal = createSignalNode({
+  endpoint: process.env.SIGNAL_ENDPOINT!,
+  apiKey: process.env.SIGNAL_API_KEY!,
+  projectId: process.env.SIGNAL_PROJECT_ID!,
+});
+
+function getSessionInfo(req: express.Request) {
+  return {
+    sessionId: req.headers['x-signal-session-id'] as string | undefined,
+    windowId: req.headers['x-signal-window-id'] as string | undefined,
+    distinctId: req.headers['x-signal-distinct-id'] as string | undefined,
+  };
+}
+
+// Use signal and getSessionInfo in routes
+```
+
+Create one `createSignalNode()` instance per process and reuse it. For session correlation, the client must send tracing headers; see [Vue](/docs/integrations/vue/configuration) or [React](/docs/integrations/react/configuration) for `addTracingHeaders`.
+
+## Next steps
+
+- [Capture](/docs/integrations/node/capture) — Track events
+- [Identify](/docs/integrations/node/identify) — Identify users
+- [Configuration](/docs/integrations/node/configuration) — createSignalNode options

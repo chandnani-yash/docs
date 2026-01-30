@@ -1,0 +1,84 @@
+---
+title: "Set person properties"
+description: "Update user properties with setPersonProperties and setPersonPropertiesOnce"
+---
+
+# Vue / Browser — Set person properties
+
+Update user properties without changing the distinct ID. Use `setPersonProperties` to overwrite properties or `setPersonPropertiesOnce` to set them only if not already set.
+
+## setPersonProperties(properties)
+
+Sets or updates user properties (overwrites existing). Sends a `$set` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | User properties to set or update |
+
+**When to use:** Update user properties after initial identification (e.g. plan changes, role updates, preference changes).
+
+## setPersonPropertiesOnce(properties)
+
+Sets user properties only if they are not already set. Sends a `$set_once` event.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `properties` | `Record<string, unknown>` | yes | User properties to set (only if not already set) |
+
+**When to use:** One-time attributes that shouldn't be overwritten (e.g. `signupSource`, `firstPurchaseDate`, `referralCode`).
+
+## Vue example
+
+```vue
+<script setup>
+import { onMounted } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signal = null
+
+onMounted(async () => {
+  signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' })
+  await signal.start()
+})
+
+function updatePlan() {
+  signal?.setPersonProperties({ plan: 'pro', role: 'admin' })
+}
+
+function setSignupSource() {
+  // Only set if not already set
+  signal?.setPersonPropertiesOnce({ signupSource: 'organic' })
+}
+</script>
+
+<template>
+  <div>
+    <button @click="updatePlan">Upgrade Plan</button>
+    <button @click="setSignupSource">Set Signup Source</button>
+  </div>
+</template>
+```
+
+## Vanilla JS example
+
+```javascript
+const signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' });
+await signal.start();
+
+// Update user plan
+signal.setPersonProperties({ plan: 'enterprise', seats: 50 });
+
+// Set signup source only if not already set
+signal.setPersonPropertiesOnce({ signupSource: 'organic' });
+```
+
+## Differences from identify()
+
+- **identify(distinctId, traits)** — Changes the user's distinct ID and sets properties. Use after login or when you know the user's identity.
+- **setPersonProperties(properties)** — Updates properties without changing the distinct ID. Use when properties change after identification.
+- **setPersonPropertiesOnce(properties)** — Sets properties only if not already set. Use for immutable attributes.
+
+## See also
+
+- [Identify](/docs/integrations/vue/identify) — identify() and reset()
+- [Capture](/docs/integrations/vue/capture) — Track events

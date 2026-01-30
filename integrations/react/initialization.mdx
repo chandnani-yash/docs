@@ -1,0 +1,54 @@
+---
+title: "Initialization"
+description: "Install and set up Signal JS in your React app"
+---
+
+# React — Initialization
+
+Install the React integration and wrap your app with the provider so all components can use Signal.
+
+## Installation
+
+```bash
+npm install @signal-js/react
+```
+
+`@signal-js/react` includes the browser SDK (`@signal-js/browser`). You do not need to install `@signal-js/browser` separately.
+
+## Provider setup
+
+Wrap your app with `SignalProvider` at the root (e.g. in `main.tsx` or `App.tsx`). Pass `options` with your endpoint, API key, and project ID.
+
+```tsx
+import { SignalProvider } from '@signal-js/react';
+
+function App() {
+  return (
+    <SignalProvider
+      options={{
+        endpoint: 'https://your-api.com/api/signal/v1',
+        apiKey: 'your-api-key',
+        projectId: 'your-project-id',
+      }}
+    >
+      <YourApp />
+    </SignalProvider>
+  );
+}
+```
+
+## Provider props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `options` | `SignalOptions` | required | Browser SDK config. Required: `endpoint`, `apiKey`, `projectId`. See [Configuration](/docs/integrations/react/configuration). |
+| `autoStart` | `boolean` | `true` | Start recording when the provider mounts |
+| `children` | `ReactNode` | required | Your app tree |
+
+Recording starts automatically when the provider mounts unless `autoStart` is `false`. Use hooks like `useSignal()` or `useSignalCapture()` inside any child component to capture events or identify users.
+
+## Next steps
+
+- [Capture events](/docs/integrations/react/capture)
+- [Identify users](/docs/integrations/react/identify)
+- [Configuration](/docs/integrations/react/configuration)

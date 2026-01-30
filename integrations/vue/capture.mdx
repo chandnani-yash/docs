@@ -1,0 +1,55 @@
+---
+title: "Capture"
+description: "Track custom events with signal.capture()"
+---
+
+# Vue / Browser — Capture
+
+Track custom events by calling `signal.capture(eventName, properties?)` on the instance you created with `createSignal()`. Use the same API in Vue, Vanilla JS, or any framework.
+
+## capture(eventName, properties?)
+
+- **eventName** (`string`) — Event name (e.g. `'button_clicked'`, `'order_created'`).
+- **properties** (`Record<string, unknown>` optional) — Arbitrary JSON-serializable properties.
+
+## Vue example
+
+```vue
+<script setup>
+import { onMounted } from 'vue'
+import { createSignal } from '@signal-js/browser'
+
+let signal = null
+
+onMounted(async () => {
+  signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' })
+  await signal.start()
+})
+
+function trackEvent(eventName, properties) {
+  signal?.capture(eventName, properties)
+}
+</script>
+
+<template>
+  <button @click="trackEvent('button_clicked', { buttonId: 'cta' })">Click Me</button>
+</template>
+```
+
+## Vanilla JS example
+
+```javascript
+const signal = createSignal({ endpoint: '...', apiKey: '...', projectId: '...' });
+await signal.start();
+
+document.getElementById('btn').addEventListener('click', () => {
+  signal.capture('button_clicked', { buttonId: 'cta' });
+});
+```
+
+Events are batched and sent with the current session and identity context. See [Identify](/docs/integrations/vue/identify) for setting user identity.
+
+## See also
+
+- [Identify](/docs/integrations/vue/identify) — Set user identity
+- [Page views](/docs/integrations/vue/page-views) — Track $pageview

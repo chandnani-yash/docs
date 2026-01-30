@@ -1,0 +1,55 @@
+---
+title: "Identify"
+description: "Identify users in React with useSignalIdentify"
+---
+
+# React — Identify
+
+Associate events with a user by identifying them. Use `useSignalIdentify()` to get `identify`, `distinctId`, and `reset` from your React components.
+
+## useSignalIdentify
+
+Returns `{ identify, distinctId, reset }`:
+
+```tsx
+import { useSignalIdentify } from '@signal-js/react';
+
+function LoginForm() {
+  const { identify, distinctId, reset } = useSignalIdentify();
+
+  const handleLogin = (user) => {
+    identify(user.id, { email: user.email, name: user.name });
+  };
+
+  const handleLogout = () => {
+    reset();
+  };
+
+  return (
+    <div>
+      {distinctId ? `Logged in as ${distinctId}` : 'Not logged in'}
+      <button onClick={() => handleLogin({ id: 'user_123', email: 'j@example.com', name: 'Jane' })}>
+        Log in
+      </button>
+      <button onClick={handleLogout}>Log out</button>
+    </div>
+  );
+}
+```
+
+## identify(distinctId, traits?)
+
+- **distinctId** (`string`) — Unique identifier for the user (e.g. database ID, email).
+- **traits** (`Record<string, unknown>` optional) — User properties (e.g. `email`, `name`, `plan`).
+
+Call `identify` after login (or when the user is known). Subsequent events will be associated with this user. Call `reset()` on logout to clear identity and start a new anonymous session.
+
+## distinctId and reset
+
+- **distinctId** — Current distinct ID (or `null` if not identified). Useful for conditional UI or debugging.
+- **reset()** — Clears the current identity (e.g. on logout). Future events use a new anonymous ID until `identify` is called again.
+
+## See also
+
+- [Capture](/docs/integrations/react/capture) — Track events
+- [Group](/docs/integrations/react/group) — Associate users with groups

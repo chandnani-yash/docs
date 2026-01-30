@@ -1,0 +1,46 @@
+---
+title: "Page views"
+description: "Automatic and manual page view tracking in Next.js"
+---
+
+# Next.js — Page views
+
+Next.js can track page views automatically on route changes, or you can use hooks for manual control.
+
+## Automatic: trackPageViews
+
+With `SignalNextProvider`, set `trackPageViews={true}` (default) to send a `$pageview` on every client-side route change:
+
+```tsx
+<SignalNextProvider options={{ ... }} trackPageViews>
+  {children}
+</SignalNextProvider>
+```
+
+No extra code is required. The provider uses the App Router’s pathname and (optionally) search params.
+
+## Optional: trackSearchParams
+
+Set `trackSearchParams={true}` to include URL search params in page view events. This uses `useSearchParams()`, so the tracker must be inside a Suspense boundary. The provider handles this when `trackSearchParams` is true.
+
+```tsx
+<SignalNextProvider options={{ ... }} trackPageViews trackSearchParams>
+  {children}
+</SignalNextProvider>
+```
+
+## Manual: usePageView and usePageViewWithSearchParams
+
+For more control, use the hooks re-exported from `@signal-js/nextjs/client`:
+
+- **usePageView(options?)** — Sends `$pageview` when the component mounts and when pathname changes. Options: `trackSearchParams`, `additionalProperties`.
+- **usePageViewWithSearchParams(options?)** — Same but always includes search params; must be used inside a Suspense boundary.
+
+You can use these instead of (or in addition to) automatic tracking by rendering a component that calls the hook once in your layout.
+
+For **named page views** (e.g. `$pageview_product`), use `useSignalCapture()` and call `capture('$pageview_product', { ... })` inside a `useEffect` when the route or context changes.
+
+## See also
+
+- [Initialization](/docs/integrations/nextjs/initialization) — Provider setup
+- [Configuration](/docs/integrations/nextjs/configuration) — trackPageViews and trackSearchParams

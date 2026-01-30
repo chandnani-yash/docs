@@ -1,0 +1,49 @@
+---
+title: "Quickstart"
+description: "Use Signal JS with Next.js App Router and Pages Router"
+---
+
+# Next.js Integration
+
+Use Signal JS with Next.js using the **@signal-js/nextjs** package. It provides client components (SignalNextProvider, hooks) and server utilities (createSignalServer). You add a **getSessionInfo()** helper in `lib/signal-server.ts` (see [Initialization](/docs/integrations/nextjs/initialization)) to read tracing headers for session correlation.
+
+## Quick start
+
+1. **Install** — `npm install @signal-js/nextjs`
+2. **Client** — Wrap your app with `SignalNextProvider` in a client providers file and add it to your root layout. See [Initialization](/docs/integrations/nextjs/initialization).
+3. **Server** — Create a shared `signal` client with `createSignalServer` and a `getSessionInfo()` helper in `lib/signal-server.ts`. See [Initialization](/docs/integrations/nextjs/initialization).
+4. **Track events** — Use hooks on the client and `signal.capture()` on the server with session identifiers. See [Capture](/docs/integrations/nextjs/capture) and [Server tracking](/docs/integrations/nextjs/server-tracking).
+
+## Sub-pages
+
+| Page | Description |
+|------|-------------|
+| [Initialization](/docs/integrations/nextjs/initialization) | Install, client provider, server setup, environment variables |
+| [Capture](/docs/integrations/nextjs/capture) | Track events from client (hooks) and server (API routes, Server Actions) |
+| [Identify](/docs/integrations/nextjs/identify) | Identify users on client and server |
+| [Set person properties](/docs/integrations/nextjs/set-person-properties) | Update user properties with setPersonProperties, setPersonPropertiesOnce (client and server) |
+| [Group](/docs/integrations/nextjs/group) | Associate users with groups (client and server) |
+| [Super properties](/docs/integrations/nextjs/super-properties) | Register properties included with every event (client only) |
+| [Alias](/docs/integrations/nextjs/alias) | Link aliases to users (client and server) |
+| [Recording control](/docs/integrations/nextjs/recording-control) | Control recording with startRecording, stopRecording, pauseRecording, resumeRecording, flush (client only) |
+| [Opt-out](/docs/integrations/nextjs/opt-out) | Control user opt-out with optOut, optIn, hasOptedOut (client only) |
+| [Flush and shutdown](/docs/integrations/nextjs/flush-shutdown) | Flush queued events and graceful shutdown (server only) |
+| [Server tracking](/docs/integrations/nextjs/server-tracking) | API routes, Server Actions, Pages Router, getServerSideProps |
+| [Page views](/docs/integrations/nextjs/page-views) | Automatic and manual page view tracking |
+| [Configuration](/docs/integrations/nextjs/configuration) | SignalNextProvider and createSignalServer options |
+
+## Features
+
+- **App Router support** — Full support for Next.js 13+ App Router
+- **Pages Router support** — Compatible with Pages Router
+- **Server-side tracking** — Track events from API routes and server actions
+- **Session correlation** — Link client and server events using tracing headers
+- **Page view tracking** — Automatic page view tracking on route changes
+
+## Best practices
+
+1. Use environment variables — Store credentials in `.env.local`.
+2. Use addTracingHeaders only when needed — Set in `options` only if you track server-side events and want correlation.
+3. Track server events — Pass `sessionId` and `windowId` from request headers to `signal.capture()` so events link to the same session replay.
+4. Separate client/server configs — Use `NEXT_PUBLIC_` prefix for client-side variables.
+5. Use sessionRecordingMasking — Add `signal-no-capture`, `signal-mask`, or `signal-ignore-input` classes to sensitive UI.

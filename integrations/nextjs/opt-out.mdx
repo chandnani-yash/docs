@@ -1,0 +1,133 @@
+---
+title: "Opt-out"
+description: "Control user opt-out (client only)"
+---
+
+# Next.js — Opt-out
+
+Allow users to opt out of tracking. When opted out, no events are captured. **Note:** Opt-out is client-side only.
+
+## Client: useSignal
+
+Get opt-out methods from `useSignal()`:
+
+```tsx
+'use client';
+
+import { useSignal } from '@signal-js/nextjs/client';
+
+function PrivacyControls() {
+  const { optOut, optIn, hasOptedOut } = useSignal();
+  const optedOut = hasOptedOut();
+
+  return (
+    <div>
+      {optedOut ? (
+        <button onClick={optIn}>Enable Tracking</button>
+      ) : (
+        <button onClick={optOut}>Disable Tracking</button>
+      )}
+    </div>
+  );
+}
+```
+
+## optOut()
+
+Disable tracking for the current user. No events will be captured while opted out. The opt-out preference is persisted in localStorage.
+
+**When to use:** When the user requests to disable tracking (e.g. privacy settings, GDPR compliance).
+
+```tsx
+const { optOut } = useSignal();
+
+const handleDisableTracking = () => {
+  optOut();
+  alert('Tracking disabled');
+};
+```
+
+## optIn()
+
+Re-enable tracking for the current user. Events will be captured again.
+
+**When to use:** When the user requests to re-enable tracking.
+
+```tsx
+const { optIn } = useSignal();
+
+const handleEnableTracking = () => {
+  optIn();
+  alert('Tracking enabled');
+};
+```
+
+## hasOptedOut()
+
+Check if the user has opted out. Returns `boolean`.
+
+**When to use:** To conditionally show UI or check tracking status.
+
+```tsx
+const { hasOptedOut } = useSignal();
+
+const isOptedOut = hasOptedOut();
+if (isOptedOut) {
+  console.log('User has opted out of tracking');
+}
+```
+
+## Example: Privacy settings
+
+```tsx
+'use client';
+
+import { useSignal } from '@signal-js/nextjs/client';
+import { useState, useEffect } from 'react';
+
+function PrivacySettings() {
+  const { optOut, optIn, hasOptedOut } = useSignal();
+  const [optedOut, setOptedOut] = useState(false);
+
+  useEffect(() => {
+    setOptedOut(hasOptedOut());
+  }, [hasOptedOut]);
+
+  const handleToggle = () => {
+    if (optedOut) {
+      optIn();
+      setOptedOut(false);
+    } else {
+      optOut();
+      setOptedOut(true);
+    }
+  };
+
+  return (
+    <div>
+      <label>
+        <input
+          type="checkbox"
+          checked={!optedOut}
+          onChange={handleToggle}
+        />
+        Enable analytics tracking
+      </label>
+      <p>
+        {optedOut
+          ? 'Tracking is disabled. No events will be captured.'
+          : 'Tracking is enabled. Events are being captured.'}
+      </p>
+    </div>
+  );
+}
+```
+
+## Persistence
+
+The opt-out preference is stored in localStorage with the key `signal_opt_out`. It persists across page reloads and browser sessions.
+
+## See also
+
+- [Identify](/docs/integrations/nextjs/identify) — Set user identity
+- [Capture](/docs/integrations/nextjs/capture) — Track events

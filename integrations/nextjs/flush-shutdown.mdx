@@ -1,0 +1,66 @@
+---
+title: "Flush and shutdown"
+description: "Flush queued events and graceful shutdown (server only)"
+---
+
+# Next.js — Flush and shutdown
+
+Flush queued events immediately with `flush()`, or stop the flush timer and flush with `shutdown()` before process exit. Both are async (return a Promise). **Note:** These methods are server-side only. For client-side flushing, see [Recording control](/docs/integrations/nextjs/recording-control).
+
+## flush()
+
+Flush all queued events to the server immediately. Returns a Promise.
+
+**When to use:** When you need to ensure events are sent before a response or before the process exits (e.g. in a serverless function or after a critical path).
+
+```typescript
+// app/api/checkout/route.ts
+import { signal } from '@/lib/signal-server';
+import { NextRequest } from 'next/server';
+
+export async function POST(request: NextRequest) {
+  // ... process checkout ...
+
+  // Flush events before returning response
+  await signal.flush();
+
+  return Response.json({ success: true });
+}
+```
+
+## shutdown()
+
+Stop the flush timer and flush remaining events. Call before process exit for graceful shutdown. Returns a Promise.
+
+**When to use:** In cleanup handlers (e.g. `process.on('SIGTERM', ...)`) so no events are lost when the process exits.
+
+```typescript
+// lib/signal-server.ts
+import { createSignalServer } from '@signal-js/nextjs/server';
+
+export const signal = createSignalServer({
+  endpoint: process.env.SIGNAL_ENDPOINT!,
+  apiKey: process.env.SIGNAL_API_KEY!,
+  projectId: process.env.SIGNAL_PROJECT_ID!,
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  await signal.shutdown();
+  process.exit(0);
+});
+```
+
+## Automatic flushing
+
+By default, the server client automatically flushes events:
+- When `flushBatchSize` (default: 20) events are queued
+- Every `flushInterval` milliseconds (default: 10000ms)
+
+Configure these in `createSignalServer` options. See [Configuration](/docs/integrations/nextjs/configuration).
+
+## See also
+
+- [Configuration](/docs/integrations/nextjs/configuration) — flushBatchSize, flushInterval
+- [Recording control](/docs/integrations/nextjs/recording-control) — Client-side flush()
+- [Server tracking](/docs/integrations/nextjs/server-tracking) — Server-side patterns

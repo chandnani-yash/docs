@@ -1,0 +1,106 @@
+---
+title: "Initialization"
+description: "Install and set up Signal JS in Next.js (client and server)"
+---
+
+# Next.js — Initialization
+
+Install the Next.js integration and set up both the client provider and the server SDK so you can track events from the browser and from API routes or Server Actions.
+
+## Installation
+
+```bash
+npm install @signal-js/nextjs
+```
+
+`@signal-js/nextjs` includes the browser SDK and the Node SDK. You do not need to install `@signal-js/browser` or `@signal-js/node` separately.
+
+## Client setup (App Router)
+
+Create a client providers file and wrap your app with `SignalNextProvider`:
+
+```tsx
+// app/providers.tsx
+'use client';
+
+import { SignalNextProvider } from '@signal-js/nextjs/client';
+
+export function Providers({ children }) {
+  return (
+    <SignalNextProvider
+      options={{
+        endpoint: process.env.NEXT_PUBLIC_SIGNAL_ENDPOINT!,
+        apiKey: process.env.NEXT_PUBLIC_SIGNAL_API_KEY!,
+        projectId: process.env.NEXT_PUBLIC_SIGNAL_PROJECT_ID!,
+      }}
+      trackPageViews
+    >
+      {children}
+    </SignalNextProvider>
+  );
+}
+```
+
+Wrap the root layout with your providers:
+
+```tsx
+// app/layout.tsx
+import { Providers } from './providers';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
+    </html>
+  );
+}
+```
+
+## Server setup (App Router)
+
+Create a shared server client and a helper to read tracing headers from requests:
+
+```typescript
+// lib/signal-server.ts
+import { createSignalServer } from '@signal-js/nextjs/server';
+
+export const signal = createSignalServer({
+  endpoint: process.env.SIGNAL_ENDPOINT!,
+  apiKey: process.env.SIGNAL_API_KEY!,
+  projectId: process.env.SIGNAL_PROJECT_ID!,
+});
+
+export function getSessionInfo(request: Request) {
+  return {
+    sessionId: request.headers.get('x-signal-session-id') || undefined,
+    windowId: request.headers.get('x-signal-window-id') || undefined,
+    distinctId: request.headers.get('x-signal-distinct-id') || undefined,
+  };
+}
+```
+
+Use `signal` and `getSessionInfo` in API routes, Server Actions, and (for Pages Router) in `getServerSideProps` and API route handlers.
+
+## Environment variables
+
+Create `.env.local`:
+
+```bash
+NEXT_PUBLIC_SIGNAL_ENDPOINT=https://your-api.com/api/signal/v1
+NEXT_PUBLIC_SIGNAL_API_KEY=your-api-key
+NEXT_PUBLIC_SIGNAL_PROJECT_ID=your-project-id
+
+SIGNAL_ENDPOINT=https://your-api.com/api/signal/v1
+SIGNAL_API_KEY=your-api-key
+SIGNAL_PROJECT_ID=your-project-id
+```
+
+Use `NEXT_PUBLIC_` only for values needed in the browser. Keep server credentials without the prefix.
+
+## Next steps
+
+- [Capture](/docs/integrations/nextjs/capture) — Client and server event tracking
+- [Server tracking](/docs/integrations/nextjs/server-tracking) — API routes, Server Actions, Pages Router
+- [Configuration](/docs/integrations/nextjs/configuration) — Provider and server options
