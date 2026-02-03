@@ -5,7 +5,7 @@ description: "createSignal() options for Vue / Browser"
 
 # Vue / Browser — Configuration
 
-`createSignal(options)` accepts the browser SDK options. Required: `endpoint`, `apiKey`, `projectId`. Same options apply in Vue, Vanilla JS, Svelte, Angular, or any framework.
+`createSignal(options)` accepts the browser SDK options. Required: `apiKey`, `projectId`. Optional: `endpoint` (defaults to `https://api.trysignal.ai/`). Same options apply in Vue, Vanilla JS, Svelte, Angular, or any framework.
 
 ## Transport and batching
 
@@ -46,9 +46,9 @@ Session recording masking controls how sensitive content appears in replays. The
 
 ```javascript
 createSignal({
-  endpoint: '...',
   apiKey: '...',
   projectId: '...',
+  // endpoint is optional (defaults to https://api.trysignal.ai/)
   sessionRecordingMasking: {
     blockClass: 'signal-no-capture',
     blockSelector: '[data-private]',
@@ -82,7 +82,7 @@ Network capture records fetch and XHR requests so they appear in the session rep
 - **recordHeaders** — When `true`, request and response headers are included. Turn on only if needed; redact sensitive headers via `sensitiveHeaders`.
 - **recordBody** — When `true`, request and response bodies are captured (up to `payloadSizeLimitBytes`). Use with care for PII; use `maskRequestFn` or exclude sensitive URLs via `urlDenyList`.
 - **sensitiveHeaders** — Array of header names (case-insensitive) to **redact** in captured data (e.g. `authorization`, `cookie`, `x-api-key`). Their values are replaced with a placeholder.
-- **urlDenyList** — Array of URL strings or RegExp. Requests whose URL matches are **excluded** from capture. Use to skip health checks, analytics, or any URL that must not appear in replays.
+- **urlDenyList** — Array of URL strings or RegExp. Requests whose URL matches are **excluded** from capture. Default excludes Signal ingestion: `['api.trysignal.ai']`. Add entries to skip health checks, analytics, or any URL that must not appear in replays.
 - **payloadSizeLimitBytes** — Max size (bytes) of request/response body to capture. Larger bodies are truncated. Default `1000000` (1 MB).
 - **maskRequestFn** — Optional `(request) => request \| null`. Return a modified request to redact fields, or return `null` to **drop** this request from capture (e.g. for sensitive endpoints).
 

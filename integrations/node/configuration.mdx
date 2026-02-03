@@ -5,13 +5,13 @@ description: "createSignalNode options for Node"
 
 # Node — Configuration
 
-Configure the Node client with `createSignalNode(options)`. Required: `endpoint`, `apiKey`.
+Configure the Node client with `createSignalNode(options)`. Required: `apiKey`. Optional: `endpoint` (defaults to `https://api.trysignal.ai/`).
 
 ## createSignalNode options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `endpoint` | `string` | required | API endpoint for sending events |
+| `endpoint` | `string` | `https://api.trysignal.ai/` | API endpoint for sending events |
 | `apiKey` | `string` | required | API key for authentication |
 | `projectId` | `string` | `'default'` | Project ID |
 | `debug` | `boolean` | `false` | Enable debug logging |

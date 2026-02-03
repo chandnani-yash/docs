@@ -29,9 +29,9 @@ export function Providers({ children }) {
   return (
     <SignalNextProvider
       options={{
-        endpoint: process.env.NEXT_PUBLIC_SIGNAL_ENDPOINT!,
         apiKey: process.env.NEXT_PUBLIC_SIGNAL_API_KEY!,
         projectId: process.env.NEXT_PUBLIC_SIGNAL_PROJECT_ID!,
+        // endpoint is optional (defaults to https://api.trysignal.ai/)
       }}
       trackPageViews
     >
@@ -67,9 +67,9 @@ Create a shared server client and a helper to read tracing headers from requests
 import { createSignalServer } from '@signal-js/nextjs/server';
 
 export const signal = createSignalServer({
-  endpoint: process.env.SIGNAL_ENDPOINT!,
   apiKey: process.env.SIGNAL_API_KEY!,
   projectId: process.env.SIGNAL_PROJECT_ID!,
+  // endpoint is optional (defaults to https://api.trysignal.ai/)
 });
 
 export function getSessionInfo(request: Request) {
@@ -88,11 +88,9 @@ Use `signal` and `getSessionInfo` in API routes, Server Actions, and (for Pages 
 Create `.env.local`:
 
 ```bash
-NEXT_PUBLIC_SIGNAL_ENDPOINT=https://your-api.com/api/signal/v1
 NEXT_PUBLIC_SIGNAL_API_KEY=your-api-key
 NEXT_PUBLIC_SIGNAL_PROJECT_ID=your-project-id
 
-SIGNAL_ENDPOINT=https://your-api.com/api/signal/v1
 SIGNAL_API_KEY=your-api-key
 SIGNAL_PROJECT_ID=your-project-id
 ```

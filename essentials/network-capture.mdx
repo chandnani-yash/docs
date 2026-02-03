@@ -31,6 +31,8 @@ networkCaptureOptions: {
   
   // Exclude certain URLs
   urlDenyList: [
+    // By default, Signal excludes its own ingestion host:
+    // ['api.trysignal.ai']
     /analytics/,
     /tracking/,
     'api.stripe.com',
@@ -89,6 +91,10 @@ Exclude specific URLs or patterns from capture:
 
 ```typescript
 urlDenyList: [
+  // Default:
+  'api.trysignal.ai',
+
+  // Add your own:
   /analytics\.google\.com/i,  // Regex pattern
   /sentry\.io/i,
   'api.stripe.com',           // Exact hostname match
@@ -165,7 +171,6 @@ recordBody: {
 import { createSignal } from '@signal-js/browser';
 
 const signal = createSignal({
-  endpoint: 'https://your-api.com/api/signal/v1',
   apiKey: 'your-api-key',
   projectId: 'your-project-id',
   

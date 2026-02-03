@@ -15,7 +15,7 @@ Use Signal JS with React using the **@signal-js/react** package. It provides a p
 npm install @signal-js/react
 ```
 
-**2. Wrap your app** with `SignalProvider` in your root (e.g. `main.tsx` or `App.tsx`). Pass `options` with your endpoint, API key, and project ID:
+**2. Wrap your app** with `SignalProvider` in your root (e.g. `main.tsx` or `App.tsx`). Pass `options` with your API key and project ID. The `endpoint` is optional and defaults to `https://api.trysignal.ai/`:
 
 ```tsx
 import { SignalProvider } from '@signal-js/react';
@@ -24,7 +24,6 @@ function App() {
   return (
     <SignalProvider
       options={{
-        endpoint: 'https://your-api.com/api/signal/v1',
         apiKey: 'your-api-key',
         projectId: 'your-project-id',
       }}

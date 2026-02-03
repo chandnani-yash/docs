@@ -22,9 +22,9 @@ import http from 'http';
 import { createSignalNode } from '@signal-js/node';
 
 const signal = createSignalNode({
-  endpoint: process.env.SIGNAL_ENDPOINT!,
   apiKey: process.env.SIGNAL_API_KEY!,
   projectId: process.env.SIGNAL_PROJECT_ID!,
+  // endpoint is optional (defaults to https://api.trysignal.ai/)
 });
 
 function getSessionInfo(req: http.IncomingMessage) {
@@ -56,9 +56,9 @@ const app = express();
 app.use(express.json());
 
 const signal = createSignalNode({
-  endpoint: process.env.SIGNAL_ENDPOINT!,
   apiKey: process.env.SIGNAL_API_KEY!,
   projectId: process.env.SIGNAL_PROJECT_ID!,
+  // endpoint is optional (defaults to https://api.trysignal.ai/)
 });
 
 function getSessionInfo(req: express.Request) {

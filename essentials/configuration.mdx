@@ -5,7 +5,7 @@ description: "Required configuration options for Signal JS"
 
 # Configuration
 
-Signal JS requires three configuration options to get started. All other options have sensible defaults.
+Signal JS requires `apiKey` and `projectId` to send data. All other options have sensible defaults.
 
 ## Required Options
 
@@ -13,14 +13,17 @@ Signal JS requires three configuration options to get started. All other options
 import { createSignal } from '@signal-js/browser';
 
 const signal = createSignal({
-  /** API endpoint for sending events */
-  endpoint: 'https://your-api.com/api/signal/v1',
-  
   /** API key for authentication */
   apiKey: 'your-api-key',
   
   /** Project identifier */
   projectId: 'your-project-id',
+
+  /**
+   * Optional: API endpoint for sending events.
+   * @default https://api.trysignal.ai/
+   */
+  // endpoint: 'https://api.trysignal.ai/',
 });
 
 await signal.start();
@@ -32,7 +35,6 @@ If you're tracking events on the server, enable tracing headers to link client a
 
 ```typescript
 const signal = createSignal({
-  endpoint: 'https://your-api.com/api/signal/v1',
   apiKey: 'your-api-key',
   projectId: 'your-project-id',
   

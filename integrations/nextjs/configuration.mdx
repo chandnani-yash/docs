@@ -11,7 +11,7 @@ Configure the client provider (`SignalNextProvider`) and the server client (`cre
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `options` | `SignalOptions` | required | Browser SDK config. Required: `endpoint`, `apiKey`, `projectId`. See [React configuration](/docs/integrations/react/configuration) for full options. |
+| `options` | `SignalOptions` | required | Browser SDK config. Required: `apiKey`, `projectId`. Optional: `endpoint` (defaults to `https://api.trysignal.ai/`). See [React configuration](/docs/integrations/react/configuration) for full options. |
 | `trackPageViews` | `boolean` | `true` | Automatically track `$pageview` on route changes |
 | `trackSearchParams` | `boolean` | `false` | Include URL search params in page view events (requires Suspense boundary) |
 | `autoStart` | `boolean` | `true` | Start recording when the provider mounts |
@@ -20,7 +20,7 @@ Configure the client provider (`SignalNextProvider`) and the server client (`cre
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `endpoint` | `string` | required | API endpoint for sending events |
+| `endpoint` | `string` | `https://api.trysignal.ai/` | API endpoint for sending events |
 | `apiKey` | `string` | required | API key for authentication |
 | `projectId` | `string` | `'default'` | Project ID |
 | `disabled` | `boolean` | `false` | When `true`, returns a no-op client |
@@ -106,7 +106,7 @@ Wrap your Next.js config to inject Signal env vars for the client: `NEXT_PUBLIC_
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `endpoint` | `string` | API endpoint (set as `NEXT_PUBLIC_SIGNAL_ENDPOINT`) |
+| `endpoint` | `string` | Optional. API endpoint (set as `NEXT_PUBLIC_SIGNAL_ENDPOINT`). Defaults to `https://api.trysignal.ai/`. |
 | `apiKey` | `string` | API key (not exposed to client by this helper) |
 | `projectId` | `string` | Optional. Project ID (set as `NEXT_PUBLIC_SIGNAL_PROJECT_ID`) |
 | `disableSourceMaps` | `boolean` | Optional. Disable source maps upload |

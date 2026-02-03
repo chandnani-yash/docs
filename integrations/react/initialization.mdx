@@ -17,7 +17,7 @@ npm install @signal-js/react
 
 ## Provider setup
 
-Wrap your app with `SignalProvider` at the root (e.g. in `main.tsx` or `App.tsx`). Pass `options` with your endpoint, API key, and project ID.
+Wrap your app with `SignalProvider` at the root (e.g. in `main.tsx` or `App.tsx`). Pass `options` with your API key and project ID. The `endpoint` is optional and defaults to `https://api.trysignal.ai/`.
 
 ```tsx
 import { SignalProvider } from '@signal-js/react';
@@ -26,7 +26,6 @@ function App() {
   return (
     <SignalProvider
       options={{
-        endpoint: 'https://your-api.com/api/signal/v1',
         apiKey: 'your-api-key',
         projectId: 'your-project-id',
       }}
@@ -41,7 +40,7 @@ function App() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `options` | `SignalOptions` | required | Browser SDK config. Required: `endpoint`, `apiKey`, `projectId`. See [Configuration](/docs/integrations/react/configuration). |
+| `options` | `SignalOptions` | required | Browser SDK config. Required: `apiKey`, `projectId`. Optional: `endpoint` (defaults to `https://api.trysignal.ai/`). See [Configuration](/docs/integrations/react/configuration). |
 | `autoStart` | `boolean` | `true` | Start recording when the provider mounts |
 | `children` | `ReactNode` | required | Your app tree |
 

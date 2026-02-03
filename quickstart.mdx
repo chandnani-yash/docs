@@ -56,9 +56,9 @@ npm install @signal-js/node
 import { createSignal } from '@signal-js/browser';
 
 const signal = createSignal({
-  endpoint: 'https://your-api.com/api/signal/v1',
   apiKey: 'your-api-key',
   projectId: 'your-project-id',
+  // endpoint is optional (defaults to https://api.trysignal.ai/)
 });
 
 // Start recording
@@ -80,9 +80,9 @@ signal.capture('button_clicked', { buttonId: 'submit' });
 <script src="https://unpkg.com/@signal-js/browser/dist/signal-full.global.js"></script>
 <script>
   const signal = SignalSDK.createSignal({
-    endpoint: 'https://your-api.com/api/signal/v1',
     apiKey: 'your-api-key',
     projectId: 'your-project-id',
+    // endpoint is optional (defaults to https://api.trysignal.ai/)
   });
   
   // Start recording

@@ -5,7 +5,7 @@ description: "SignalProvider and browser SDK options for React"
 
 # React — Configuration
 
-Configure the React provider and the underlying browser SDK via `SignalProvider`'s `options` prop. Required: `endpoint`, `apiKey`, `projectId`.
+Configure the React provider and the underlying browser SDK via `SignalProvider`'s `options` prop. Required: `apiKey`, `projectId`. Optional: `endpoint` (defaults to `https://api.trysignal.ai/`).
 
 ## Provider props
 
@@ -16,7 +16,7 @@ Configure the React provider and the underlying browser SDK via `SignalProvider`
 
 ## Browser SDK options
 
-`options` is passed to `createSignal`. Required: `endpoint`, `apiKey`, `projectId`.
+`options` is passed to `createSignal`. Required: `apiKey`, `projectId`. Optional: `endpoint` (defaults to `https://api.trysignal.ai/`).
 
 ### Transport and batching
 
@@ -58,9 +58,9 @@ Session recording masking controls how sensitive content appears in replays. The
 ```tsx
 <SignalProvider
   options={{
-    endpoint: '...',
     apiKey: '...',
     projectId: '...',
+    // endpoint is optional (defaults to https://api.trysignal.ai/)
     sessionRecordingMasking: {
       blockClass: 'signal-no-capture',
       blockSelector: '[data-private]',
@@ -109,7 +109,7 @@ Network capture records fetch and XHR requests so they appear in the session rep
 - **recordHeaders** — When `true`, request and response headers are included in the captured payload. Turn on only if you need to debug headers; many headers (e.g. `Authorization`, `Cookie`) should be redacted via `sensitiveHeaders`.
 - **recordBody** — When `true`, request and response bodies are captured (up to `payloadSizeLimitBytes`). Useful for API debugging but increases payload size and may contain PII; use with `maskRequestFn` or avoid for sensitive endpoints.
 - **sensitiveHeaders** — Array of header names (case-insensitive) to **redact** in captured data. Their values are replaced with a placeholder (e.g. `[REDACTED]`). Always include `authorization`, `cookie`, `x-api-key`, and any custom auth headers if you enable `recordHeaders`.
-- **urlDenyList** — Array of URL strings or RegExp. Requests whose URL matches are **excluded** from capture (no URL, headers, or body stored). Use to skip health checks, third-party analytics, or any URL that must not appear in replays.
+- **urlDenyList** — Array of URL strings or RegExp. Requests whose URL matches are **excluded** from capture (no URL, headers, or body stored). Default excludes Signal ingestion: `['api.trysignal.ai']`. Add your own entries to skip health checks, third-party analytics, or any URL that must not appear in replays.
 - **payloadSizeLimitBytes** — Max size (in bytes) of request/response body to capture. Larger bodies are truncated. Default `1000000` (1 MB). Prevents huge bodies from bloating the replay.
 - **maskRequestFn** — Optional `(request) => request \| null`. Receives the captured request object (URL, method, headers, body). Return a modified object to redact or transform fields, or return `null` to **drop** this request from capture (e.g. for sensitive endpoints).
 

@@ -28,9 +28,9 @@ let signal = null
 
 onMounted(async () => {
   signal = createSignal({
-    endpoint: 'https://your-api.com/api/signal/v1',
     apiKey: 'your-api-key',
     projectId: 'your-project-id',
+    // endpoint is optional (defaults to https://api.trysignal.ai/)
   })
   
   await signal.start()
@@ -49,9 +49,9 @@ Same API in plain HTML/JS or with a bundler:
   import { createSignal } from '@signal-js/browser';
 
   const signal = createSignal({
-    endpoint: 'https://your-api.com/api/signal/v1',
     apiKey: 'your-api-key',
     projectId: 'your-project-id',
+    // endpoint is optional (defaults to https://api.trysignal.ai/)
   });
 
   await signal.start();

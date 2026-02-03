@@ -39,9 +39,9 @@ Stop the flush timer and flush remaining events. Call before process exit for gr
 import { createSignalServer } from '@signal-js/nextjs/server';
 
 export const signal = createSignalServer({
-  endpoint: process.env.SIGNAL_ENDPOINT!,
   apiKey: process.env.SIGNAL_API_KEY!,
   projectId: process.env.SIGNAL_PROJECT_ID!,
+  // endpoint is optional (defaults to https://api.trysignal.ai/)
 });
 
 // Graceful shutdown
